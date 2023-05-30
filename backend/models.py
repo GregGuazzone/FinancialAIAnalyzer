@@ -4,11 +4,18 @@ from sqlalchemy import Column, Integer, String, ForeignKey, Table
 
 db = SQLAlchemy()
 
+def init_app(app):
+    db.init_app(app)
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+
+
 class User(db.Model):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
-    name = Column(String(50), nullable=False)
-    email = Column(String(50), nullable=False)
+    username = Column(String(50), nullable=False)
+    email = Column(String(50), nullable=False, unique=True)
     password = Column(String(50), nullable=False)
     watchlists = db.relationship('Watchlist', backref='user', cascade='all, delete-orphan')
     portfolios = db.relationship('Portfolio', backref='user', uselist=False, cascade='all, delete-orphan')
