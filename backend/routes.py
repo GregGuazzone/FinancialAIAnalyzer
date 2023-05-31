@@ -3,7 +3,7 @@ from models import db, init_app, User
 from flask_cors import CORS
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://my_username:my_password@localhost:5432/my_database'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 init_app(app)
 
@@ -35,4 +35,10 @@ def login():
     if user.password != request.json['password']:
         return jsonify({'error': 'Incorrect password'}), 400
     return jsonify({'message': 'User logged in successfully'}), 200
+
+@app.route('/api/watchlist', methods=['GET'])
+def watchlist():
+    return
+
+
 
