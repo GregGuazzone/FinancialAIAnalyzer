@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import Api from '../Api';
+import { useNavigate } from 'react-router-dom';
+
+
 
 const SignUp = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -19,6 +23,7 @@ const SignUp = () => {
     e.preventDefault();
     const { success, data, error } = await Api.signup(formData);
     if (success) {
+      navigate('/dashboard')
       console.log(data.message);
       // Redirect or show success message
     } else {
@@ -29,12 +34,12 @@ const SignUp = () => {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-bluegrey-500">
       <form onSubmit={handleSubmit} className="w-full max-w-sm">
-        <h2 className="text-2xl font-bold mb-4">Sign Up</h2>
+        <h2 className="text-2xl font-bold text-white mb-4">Sign Up</h2>
 
         <div className="mb-4">
-          <label htmlFor="username" className="block mb-2">
+          <label htmlFor="username" className="block mb-2 text-white">
             Username
           </label>
           <input
@@ -49,7 +54,7 @@ const SignUp = () => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="email" className="block mb-2">
+          <label htmlFor="email" className="block mb-2 text-white">
             Email
           </label>
           <input
@@ -64,7 +69,7 @@ const SignUp = () => {
         </div>
 
         <div className="mb-4">
-          <label htmlFor="password" className="block mb-2">
+          <label htmlFor="password" className="block mb-2 text-white">
             Password
           </label>
           <input

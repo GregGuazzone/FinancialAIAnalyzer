@@ -9,7 +9,7 @@ const Home = () => {
         Harnessing the power of AI to provide personalized stock analysis and recommendations.
       </p>
       <Link to="/signup">
-        <button className="bg-white-500 hover:bg-blue-800 text-black font-semibold py-2 px-4 rounded">
+        <button className="bg-white-500 hover:bg-blue-800 text-white font-semibold py-2 px-4 rounded">
           Sign Up
         </button>
       </Link>

@@ -12,3 +12,4 @@ Werkzeug==2.2.2
 psycopg2-binary
 flask_sqlalchemy
 sqlalchemy
+flask_jwt_extended
