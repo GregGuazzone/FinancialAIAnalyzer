@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, render_template, session
 from models import db, init_app, User
-from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_current_user
+from flask_jwt import JWT, jwt_required, current_identity
 from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
@@ -8,10 +8,21 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://my_username:my_password@lo
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'secret_key'
 app.config['JWT_SECRET_KEY'] = 'jwt_secret_key'
-jwt = JWTManager(app)
+
 init_app(app)
 
 cors = CORS(app)
+
+def authenticate(username, password):
+    user = User.query.filter_by(username=username).first()
+    if user and user.password == password:
+        return user
+    
+def identity(payload):
+    user_id = payload['identity']
+    return User.query.filter_by(id=user_id).first()
+
+jwt = JWT(app, authenticate, identity)
 
 @app.route('/')
 def index():
@@ -43,6 +54,8 @@ def login():
     print('login successful')
     return jsonify({'status': True, 'message': 'User logged in successfully', 'access_token': access_token}), 200
 
+#TODO: Watch: https://www.youtube.com/watch?v=8-W2O_R95Pk
+
 @app.route('/api/logout', methods=['GET'])
 def logout():
     return jsonify({'message': 'User logged out successfully'}), 200
@@ -56,13 +69,14 @@ def check_login():
 
 
 @app.route('/api/watchlist', methods=['GET'])
-@jwt_required
+@jwt_required()
 def watchlist():
-    user = get_current_user()
-    print("User:", user)
-    print("Request Header:", request.headers)
-    if not user:
-        return jsonify({'status': False, 'message': 'User does not exist'}), 404
+    print(current_identity)
+    #user = get_current_user()
+    #print("User:", user)
+    #print("Request Header:", request.headers)
+    #if not user:
+        #return jsonify({'status': False, 'message': 'User does not exist'}), 404
     watchlist = ['AAPL', 'TSLA', 'GOOG', 'AMZN', 'MSFT']
     return jsonify({'status': True, 'watchlist': {watchlist}}), 200
 
