@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, render_template, session
 from models import db, init_app, User
-from flask_jwt import JWT, jwt_required, current_identity
+from flask_jwt_extended import create_access_token, JWTManager, jwt_required, get_jwt_identity
 from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
@@ -10,8 +10,7 @@ app.config['SECRET_KEY'] = 'secret_key'
 app.config['JWT_SECRET_KEY'] = 'jwt_secret_key'
 
 init_app(app)
-
-cors = CORS(app)
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 def authenticate(username, password):
     user = User.query.filter_by(username=username).first()
@@ -22,7 +21,8 @@ def identity(payload):
     user_id = payload['identity']
     return User.query.filter_by(id=user_id).first()
 
-jwt = JWT(app, authenticate, identity)
+app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
+jwt = JWTManager(app)
 
 @app.route('/')
 def index():
@@ -43,7 +43,20 @@ def signup():
     print('signup successful')
     return jsonify({'message': 'User created successfully'}), 201
 
+@app.route('/api/token', methods=['POST'])
+def create_token():
+    email = request.json.get('email', None)
+    password = request.json.get('password', None)
+    if email != "test" or password != "test":
+        return jsonify({"msg": "Bad username or password"}), 401
+    
+    access_token = create_access_token(identity=email)
+    return jsonify(access_token=access_token), 200
+
+
+
 @app.route('/api/login', methods=['POST'])
+@cross_origin()
 def login():
     user = User.query.filter_by(email=request.json['email']).first()
     if not user:
@@ -67,18 +80,13 @@ def check_login():
     else:
         return jsonify({'login_status': False}), 200
 
-
 @app.route('/api/watchlist', methods=['GET'])
 @jwt_required()
 def watchlist():
-    print(current_identity)
-    #user = get_current_user()
-    #print("User:", user)
-    #print("Request Header:", request.headers)
-    #if not user:
-        #return jsonify({'status': False, 'message': 'User does not exist'}), 404
+    current_user = get_jwt_identity()
     watchlist = ['AAPL', 'TSLA', 'GOOG', 'AMZN', 'MSFT']
-    return jsonify({'status': True, 'watchlist': {watchlist}}), 200
+    return jsonify({'status': True, 'watchlist': watchlist}), 200
+
 
 
 

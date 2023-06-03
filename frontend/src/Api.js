@@ -32,6 +32,7 @@ const Api = {
       .then((response) => response.json())
       .then((data) => {
         if (data.access_token) {
+          console.log('Access Token:', data.access_token)
           localStorage.setItem('access_token', data.access_token);
         }
         console.log('Success:', data.status);
@@ -39,26 +40,8 @@ const Api = {
       })
   },
 
-  checkLogin: async () => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/check_login`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      const data = await response.json();
-      if (response.ok) {
-        console.log("Response:", data);
-        return {success: true, loginStatus: data.login_status};
-      }
-      return { success: false, error: data.error };
-    } catch (error) {
-      return { success: false, error: 'An error occurred during login check' };
-    }
-  },
-
   getWatchlist: async () => {
+    console.log("Watchlist Access Token:", localStorage.getItem('access_token'));
     return fetch(`${API_BASE_URL}/watchlist`, {
       method: 'GET',
       headers: {
@@ -68,9 +51,9 @@ const Api = {
     })
       .then((response) => response.json())
       .then((data) => {
-        if(data.status) {
-          return data.watchlist;
-        }});
+        console.log("Watchlist:", data.watchlist);
+        return data.watchlist;
+      });
 
       },
 
