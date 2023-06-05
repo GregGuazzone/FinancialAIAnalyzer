@@ -1,6 +1,6 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, Integer, String, ForeignKey, Table
+from sqlalchemy import Column, Integer, String, ForeignKey, Table, ARRAY
 
 db = SQLAlchemy()
 
@@ -20,6 +20,11 @@ class User(db.Model):
     watchlists = db.relationship('Watchlist', backref='user', cascade='all, delete-orphan')
     portfolios = db.relationship('Portfolio', backref='user', uselist=False, cascade='all, delete-orphan')
 
+@property
+def watchlist(self):
+    if self.watchlists:
+        return self.watchlists[0]
+    return None
 
 class Stock(db.Model):
     __tablename__ = 'stocks'
@@ -33,6 +38,7 @@ class Watchlist(db.Model):
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    stocks = Column(ARRAY(String(10)), nullable=False)
 
 
 class Portfolio(db.Model):

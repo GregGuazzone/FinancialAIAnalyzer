@@ -22,6 +22,7 @@ def identity(payload):
     return User.query.filter_by(id=user_id).first()
 
 app.config["JWT_SECRET_KEY"] = "super-secret"  # Change this!
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = False
 jwt = JWTManager(app)
 
 @app.route('/')
@@ -30,9 +31,13 @@ def index():
 
 @app.route('/api/signup', methods=['POST'])
 def signup():
-    user = User.query.filter_by(email=request.json['email']).first()
-    if user:
-        return jsonify({'error': 'Email already exists'}), 400
+    email_check = User.query.filter_by(email=request.json['email']).first()
+    if email_check:
+        print('email already exists')
+        return jsonify({'error': 'email', 'message': 'Email already exists'}), 400
+    username_check = User.query.filter_by(username=request.json['username']).first()
+    if username_check:
+        return jsonify({'error': 'username', 'message': 'Username already exists'}), 400
     new_user = User(
         username=request.json['username'],
         email=request.json['email'],
@@ -42,17 +47,6 @@ def signup():
     db.session.commit()
     print('signup successful')
     return jsonify({'message': 'User created successfully'}), 201
-
-@app.route('/api/token', methods=['POST'])
-def create_token():
-    email = request.json.get('email', None)
-    password = request.json.get('password', None)
-    if email != "test" or password != "test":
-        return jsonify({"msg": "Bad username or password"}), 401
-    
-    access_token = create_access_token(identity=email)
-    return jsonify(access_token=access_token), 200
-
 
 
 @app.route('/api/login', methods=['POST'])
@@ -67,7 +61,6 @@ def login():
     print('login successful')
     return jsonify({'status': True, 'message': 'User logged in successfully', 'access_token': access_token}), 200
 
-#TODO: Watch: https://www.youtube.com/watch?v=8-W2O_R95Pk
 
 @app.route('/api/logout', methods=['GET'])
 def logout():
@@ -84,8 +77,24 @@ def check_login():
 @jwt_required()
 def watchlist():
     current_user = get_jwt_identity()
-    watchlist = ['AAPL', 'TSLA', 'GOOG', 'AMZN', 'MSFT']
-    return jsonify({'status': True, 'watchlist': watchlist}), 200
+    user = User.query.filter_by(id=current_user).first()
+    if not user:
+        return jsonify({'status': False, 'message': 'User does not exist'}), 404
+    return jsonify({'status': True, 'watchlist': user.watchlist}), 200
+
+@app.route('/api/watchlist/add', methods=['POST'])
+@jwt_required()
+def add_to_watchlist():
+    current_user = get_jwt_identity()
+    user = User.query.filter_by(id=current_user).first()
+    if not user:
+        return jsonify({'status': False, 'message': 'User does not exist'}), 404
+    stock_ticker = request.json
+    if stock_ticker in user.watchlist:
+        return jsonify({'status': False, 'message': 'Ticker already in watchlist'}), 400
+    user.watchlist.append(stock_ticker)
+    db.session.commit()
+    return jsonify({'status': True, 'message': 'Ticker added to watchlist successfully'}), 200
 
 
 

@@ -33,10 +33,9 @@ const handleSubmit = async (e) => {
 };
 
 return (
-  <div className="flex justify-center items-center h-screen bg-bluegrey-500">
+  <div className="flex justify-center items-center h-screen w-screen bg-bluegrey-500">
     <div className="max-w-md w-full mx-4 bg-white p-6 rounded-md shadow-md">
-
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="w-full max-w-sm">
         <div className="mb-6">
           <label htmlFor="email" className="block mb-2 text-lg font-medium text-gray-700">
             Email
@@ -75,10 +74,14 @@ return (
 
         <button
           type="submit"
-          className="w-full bg-indigo-600 text-white py-3 rounded-md hover:bg-indigo-700 transition-colors duration-300"
+          className="w-full bg-indigo-600 text-white py-3 bg-blue-300 rounded-md hover:scale-105 transform transition-all duration-300 ease-in-out"
         >
           Log In
         </button>
+        <p className="mt-4 text-gray-600 text-center">
+          <a href="/signup" className="text-blue-500 hover:text-blue-700">Don't have an account? Sign Up</a>
+        </p>
+
       </form>
     </div>
   </div>

@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import Api from '../Api';
-import { useNavigate } from 'react-router-dom';
-
-
+import { useNavigate, Link } from 'react-router-dom';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -10,6 +8,10 @@ const SignUp = () => {
     username: '',
     email: '',
     password: '',
+  });
+  const [errorMessages, setErrorMessages] = useState({
+    username: '',
+    email: '',
   });
 
   const handleChange = (e) => {
@@ -21,72 +23,85 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { success, data, error } = await Api.signup(formData);
+    const { success, message, error } = await Api.signup(formData);
+    console.log(message);
+    console.log(error)
     if (success) {
-      navigate('/dashboard')
-      console.log(data.message);
+      navigate('/dashboard');
+      console.log(message);
       // Redirect or show success message
     } else {
+      
       console.error(error);
-      // Show error message
+      
     }
-
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-bluegrey-500">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm">
-        <h2 className="text-2xl font-bold text-white mb-4">Sign Up</h2>
+    <div className="flex flex-col items-center justify-center h-screen w-screen bg-bluegrey-500">
+      <div className="max-w-md w-full mx-4 bg-white p-6 rounded-md shadow-md">
+        <form onSubmit={handleSubmit} className="w-full max-w-sm">
+          <h2 className="text-2xl font-bold text-blue-300 mb-4">Sign Up</h2>
+          <div className="mb-6">
+            <label htmlFor="username" className="block mb-2 text-lg font-medium text-gray-700">
+              Username
+            </label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              value={formData.username}
+              onChange={handleChange}
+              className="w-full px-4 py-3 outline rounded-md placeholder-gray-600 bg-gray-100 text-gray-800 focus:outline-none focus:bg-white"
+              required
+            />
+            {errorMessages.username && (
+              <p className="text-red-500 mt-1">{errorMessages.username}</p>
+            )}
+          </div>
 
-        <div className="mb-4">
-          <label htmlFor="username" className="block mb-2 text-white">
-            Username
-          </label>
-          <input
-            type="text"
-            id="username"
-            name="username"
-            value={formData.username}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded"
-            required
-          />
-        </div>
+          <div className="mb-6">
+            <label htmlFor="email" className="block mb-2 text-lg font-medium text-gray-700">
+              Email
+            </label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full px-4 py-3 outline rounded-md placeholder-gray-600 bg-gray-100 text-gray-800 focus:outline-none focus:bg-white"
+              required
+            />
+            {errorMessages.email && (
+              <p className="text-red-500 mt-1">{errorMessages.email}</p>
+            )}
+          </div>
 
-        <div className="mb-4">
-          <label htmlFor="email" className="block mb-2 text-white">
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded"
-            required
-          />
-        </div>
+          <div className="mb-6">
+            <label htmlFor="password" className="block mb-2 text-lg font-medium text-gray-700">
+              Password
+            </label>
+            <input
+              type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full px-4 py-3 outline rounded-md placeholder-gray-600 bg-gray-100 text-gray-800 focus:outline-none focus:bg-white"
+              required
+            />
+          </div>
 
-        <div className="mb-4">
-          <label htmlFor="password" className="block mb-2 text-white">
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border rounded"
-            required
-          />
-        </div>
+          <button type="submit" className="w-full bg-blue-300 text-white py-2 rounded hover:scale-105">
+            Create Account
+          </button>
 
-        <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded">
-          Sign Up
-        </button>
-      </form>
+          <p className="mt-4 text-gray-600 text-center">
+            <Link to="/login" className="text-blue-400 hover:text-blue-800">Already have an account? Log in</Link>
+          </p>
+        </form>
+      </div>
     </div>
   );
 };

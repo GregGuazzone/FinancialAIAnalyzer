@@ -11,8 +11,9 @@ const Api = {
         body: JSON.stringify(formData),
       });
       const data = await response.json();
+      console.log('Data:', data);
       if (response.ok) {
-        return { success: true, data };
+        return { success: true, message: data.message };
       } else {
         return { success: false, error: data.error };
       }
@@ -41,7 +42,6 @@ const Api = {
   },
 
   getWatchlist: async () => {
-    console.log("Watchlist Access Token:", localStorage.getItem('access_token'));
     return fetch(`${API_BASE_URL}/watchlist`, {
       method: 'GET',
       headers: {
@@ -51,12 +51,28 @@ const Api = {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log("Watchlist:", data.watchlist);
+        console.log('Success:', data.watchlist);
         return data.watchlist;
       });
 
       },
 
+  addToWatchlist: async (ticker) => {
+    console.log('ticker:', ticker);
+    return fetch(`${API_BASE_URL}/watchlist/add`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+      },
+      body: JSON.stringify(ticker),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('Success:', data.status);
+        return data.status;
+      });
+  }
 
 
 };
