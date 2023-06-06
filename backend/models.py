@@ -40,6 +40,11 @@ class Watchlist(db.Model):
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     stocks = Column(ARRAY(String(10)), nullable=False)
 
+    def __init__(self, name, user_id):
+        self.name = name
+        self.user_id = user_id
+        self.stocks = []
+
 
 class Portfolio(db.Model):
     __tablename__ = 'portfolios'

@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify, render_template, session
-from models import db, init_app, User
+from models import db, init_app, User, Watchlist, Stock, Portfolio
 from flask_jwt_extended import create_access_token, JWTManager, jwt_required, get_jwt_identity
 from flask_cors import CORS, cross_origin
 
@@ -73,14 +73,44 @@ def check_login():
     else:
         return jsonify({'login_status': False}), 200
 
-@app.route('/api/watchlist', methods=['GET'])
+@app.route('/api/watchlists', methods=['GET'])
 @jwt_required()
 def watchlist():
     current_user = get_jwt_identity()
     user = User.query.filter_by(id=current_user).first()
     if not user:
+        print('user does not exist')
         return jsonify({'status': False, 'message': 'User does not exist'}), 404
-    return jsonify({'status': True, 'watchlist': user.watchlist}), 200
+    watchlists = []
+    for watchlist in user.watchlists:
+        watchlist_data = {
+            'name' : watchlist.name,
+            'stocks' : watchlist.stocks
+        }
+        watchlists.append(watchlist_data)
+    return jsonify({'status': True, 'watchlists': watchlists}), 200
+
+@app.route('/api/watchlists/create', methods=['POST'])
+@jwt_required()
+def create_watchlist():
+    print("creating watchlist")
+    print("request", request.json)
+    current_user = get_jwt_identity()
+    user = User.query.filter_by(id=current_user).first()
+    if not user:
+        print('user does not exist')
+        
+        return jsonify({'status': False, 'message': 'User does not exist'}), 404
+    watchlist = Watchlist.query.filter_by(name=request.json).first()
+    if watchlist:
+        print('watchlist already exists')
+        return jsonify({'status': False, 'message': 'Watchlist already exists'}), 400
+    new_watchlist = Watchlist(name=request.json['name'], user_id=current_user)
+    print(new_watchlist)
+    db.session.add(new_watchlist)
+    db.session.commit()
+    print('watchlist created successfully')
+    return jsonify({'status': True, 'message': 'Watchlist created successfully'}), 200
 
 @app.route('/api/watchlist/add', methods=['POST'])
 @jwt_required()
