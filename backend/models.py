@@ -45,6 +45,11 @@ class Watchlist(db.Model):
         self.user_id = user_id
         self.stocks = []
 
+    def add_stock(self, stock):
+        if not self.stocks:
+            self.stocks = [stock]
+        self.stocks.append(stock)
+
 
 class Portfolio(db.Model):
     __tablename__ = 'portfolios'

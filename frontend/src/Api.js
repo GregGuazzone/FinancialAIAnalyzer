@@ -42,7 +42,7 @@ const Api = {
   },
 
   getWatchlists: async () => {
-    return fetch(`${API_BASE_URL}/watchlists`, {
+    return fetch(`${API_BASE_URL}/watchlists_names`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -52,12 +52,30 @@ const Api = {
       .then((response) => response.json())
       .then((data) => {
         if (data.status == true)  {
-          console.log('Watchlists:', data.watchlists)
           return data.watchlists;
         }
         return data.message;
       });
       },
+
+  getStocks: async (watchlist) => {
+    return fetch(`${API_BASE_URL}/stocks/?watchlist=${watchlist}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status == true)  {
+          console.log('Watchlist:', data.stocks)
+          return data.stocks;
+        }
+        return data.message;
+      });
+      },
+
 
   addWatchlist: async (watchlist) => {
     console.log('watchlist:', watchlist);
@@ -76,15 +94,16 @@ const Api = {
       });
   },
 
-  addToWatchlist: async (ticker) => {
-    console.log('ticker:', ticker);
+  addToWatchlist: async (watchlist, ticker) => {
+    const formData = {  watchlist: watchlist, ticker: ticker };
+    console.log('formData:', formData);
     return fetch(`${API_BASE_URL}/watchlist/add`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${localStorage.getItem('access_token')}`,
       },
-      body: JSON.stringify(ticker),
+      body: JSON.stringify(formData),
     })
       .then((response) => response.json())
       .then((data) => {

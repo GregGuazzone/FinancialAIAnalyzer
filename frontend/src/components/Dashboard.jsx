@@ -7,7 +7,8 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [watchlists, setWatchlists] = useState([]);
   const [newWatchlist, setNewWatchlist] = useState('');
-  const [selectedWatchlist, setSelectedWatchlist] = useState('');
+  const [selectedWatchlist, setSelectedWatchlist] = useState(null);
+  const [currentStocks, setCurrentStocks] = useState([]);
   const [newStock, setNewStock] = useState('');
 
   const navigate = useNavigate();
@@ -15,22 +16,32 @@ const Dashboard = () => {
   useEffect(() => {
     const getWatchlists = async () => {
       const response = await Api.getWatchlists();
-      console.log("Response:", response)
       setLoading(false);
       setWatchlists(response);
       if (response.length > 0) {
+        console.log("Selected watchlist:", response[0])
         setSelectedWatchlist(response[0]);
       }
     };
     getWatchlists();
   }, []);
 
+  useEffect(() => {
+    if (selectedWatchlist) {
+      const getStocks = async () => {
+        const response = await Api.getStocks(selectedWatchlist);
+        setCurrentStocks(response);
+      };
+      getStocks();
+    }
+  }, [selectedWatchlist]);
+
+
   const handleAddWatchlist = () => {
-    // Assuming you have an API function to add a watchlist
-    Api.addWatchlist()
+    Api.addWatchlist(newWatchlist)
       .then((response) => {
         setWatchlists([...watchlists, response]);
-        setSelectedWatchlist(response);
+        setSelectedWatchlist(response.name);
       })
       .catch((error) => {
         console.error('Error adding watchlist:', error);
@@ -39,7 +50,7 @@ const Dashboard = () => {
 
 
   const handleAddStock = () => {
-    // Assuming you have an API function to add a stock to the selected watchlist
+    console.log("Current watchlist:", selectedWatchlist)
     Api.addToWatchlist(selectedWatchlist, newStock)
       .then(() => {
         setNewStock('');
@@ -48,6 +59,8 @@ const Dashboard = () => {
         console.error('Error adding stock to watchlist:', error);
       });
   };
+
+  console.log("Current stocks:", currentStocks)
 
     return (
       <div className="dashboard-container flex flex-col items-stretch min-w-screen justify-center h-screen bg-bluegrey-500 w-screen">
@@ -71,15 +84,20 @@ const Dashboard = () => {
                   </form>
                 </div>
               ) : (
-                <div>
+                <div className="bg-white rounded-md shadow-md">
                   <h1>Dashboard</h1>
                   <p>Welcome to your dashboard!</p>
                   <div>
                     <h2>Watchlist</h2>
                     <div>
-                      <select
-                        value={selectedWatchlist}
-                        onChange={(e) => setSelectedWatchlist(e.target.value)}
+                      <select className= " text-black m-1 rounded-md bg-white"
+                        value={selectedWatchlist ? selectedWatchlist.name : ''}
+                        onChange={(e) => {
+                          const selected = watchlists.find(
+                            (watchlist) => watchlist.name === e.target.value
+                          );
+                          setSelectedWatchlist(selected);
+                        }}
                       >
                         {watchlists.map((watchlist) => (
                           <option key={watchlist} value={watchlist}>
@@ -96,24 +114,33 @@ const Dashboard = () => {
                       <button onClick={handleAddStock}>Add Stock</button>
                     </div>
                   </div>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Symbol</th>
-                        <th>Price</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {/* Render the stocks of the selected watchlist */}
-                      {selectedWatchlist &&
-                        selectedWatchlist.map((item) => (
+                  {selectedWatchlist && currentStocks && currentStocks.length > 0 && (
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>Symbol</th>
+                          <th>Price</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {currentStocks.map((item) => (
                           <tr key={item}>
                             <td>{item}</td>
                             <td>$345.00</td>
                           </tr>
                         ))}
-                    </tbody>
-                  </table>
+                      </tbody>
+                    </table>
+                  )}
+                  <form className="rounded-md bg-white inline-flex">
+                    <input className= "text-black m-1 rounded-md bg-white"
+                      type="text"
+                      value={newWatchlist}
+                      onChange={(e) => setNewWatchlist(e.target.value)}
+                      placeholder="Enter watchlist name"
+                    />  
+                    <button className="text-black m-1 rounded-md bg-white border-black border-solid" onClick={handleAddWatchlist}>Add Watchlist</button>
+                  </form>
                 </div>
               )}
             </div>
@@ -122,5 +149,6 @@ const Dashboard = () => {
       </div>
     );
   };
+  
 
 export default Dashboard;

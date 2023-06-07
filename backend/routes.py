@@ -10,7 +10,7 @@ app.config['SECRET_KEY'] = 'secret_key'
 app.config['JWT_SECRET_KEY'] = 'jwt_secret_key'
 
 init_app(app)
-cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
 def authenticate(username, password):
     user = User.query.filter_by(username=username).first()
@@ -73,22 +73,38 @@ def check_login():
     else:
         return jsonify({'login_status': False}), 200
 
-@app.route('/api/watchlists', methods=['GET'])
+@app.route('/api/watchlists_names', methods=['GET'])
+@cross_origin()
 @jwt_required()
-def watchlist():
+def get_watchlists_names():
     current_user = get_jwt_identity()
     user = User.query.filter_by(id=current_user).first()
     if not user:
         print('user does not exist')
         return jsonify({'status': False, 'message': 'User does not exist'}), 404
-    watchlists = []
+    watchlists_names = []
     for watchlist in user.watchlists:
-        watchlist_data = {
-            'name' : watchlist.name,
-            'stocks' : watchlist.stocks
-        }
-        watchlists.append(watchlist_data)
-    return jsonify({'status': True, 'watchlists': watchlists}), 200
+        watchlists_names.append(watchlist.name)
+    return jsonify({'status': True, 'watchlists': watchlists_names}), 200
+
+@app.route('/api/stocks/', methods=['GET'])
+@cross_origin()
+@jwt_required()
+def get_stocks():
+    print("Request.args:", request.args.get('watchlist'))
+    current_user = get_jwt_identity()
+    user = User.query.filter_by(id=current_user).first()
+    if not user:
+        print('user does not exist')
+        return jsonify({'status': False, 'message': 'User does not exist'}), 404
+    watchlist = Watchlist.query.filter_by(user_id=user.id, name=request.args.get('watchlist')).first()
+    if not watchlist:
+        print('watchlist does not exist')
+        return jsonify({'status': False, 'message': 'Watchlist does not exist'}), 404
+    stocks = []
+    for stock in watchlist.stocks:
+        stocks.append(stock.name)
+    return jsonify({'status': True, 'stocks': stocks}), 200
 
 @app.route('/api/watchlists/create', methods=['POST'])
 @jwt_required()
@@ -105,7 +121,7 @@ def create_watchlist():
     if watchlist:
         print('watchlist already exists')
         return jsonify({'status': False, 'message': 'Watchlist already exists'}), 400
-    new_watchlist = Watchlist(name=request.json['name'], user_id=current_user)
+    new_watchlist = Watchlist(name=request.json, user_id=current_user)
     print(new_watchlist)
     db.session.add(new_watchlist)
     db.session.commit()
@@ -119,11 +135,21 @@ def add_to_watchlist():
     user = User.query.filter_by(id=current_user).first()
     if not user:
         return jsonify({'status': False, 'message': 'User does not exist'}), 404
-    stock_ticker = request.json
-    if stock_ticker in user.watchlist:
+    watchlist_name = request.json.get('watchlist')
+    stock_ticker = request.json.get('ticker')
+    print("watchlist_name", watchlist_name)
+    # Find the watchlist by name
+    watchlist = Watchlist.query.filter_by(user_id=user.id, name=watchlist_name).first()
+    print(watchlist)
+    if not watchlist:
+        return jsonify({'status': False, 'message': 'Watchlist does not exist'}), 404
+    
+    if stock_ticker in watchlist.stocks:
         return jsonify({'status': False, 'message': 'Ticker already in watchlist'}), 400
-    user.watchlist.append(stock_ticker)
+    
+    watchlist.add_stock(stock_ticker)
     db.session.commit()
+    
     return jsonify({'status': True, 'message': 'Ticker added to watchlist successfully'}), 200
 
 
