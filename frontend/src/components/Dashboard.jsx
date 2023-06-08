@@ -54,16 +54,19 @@ const Dashboard = () => {
     Api.addToWatchlist(selectedWatchlist, newStock)
       .then(() => {
         setNewStock('');
+        const getStocks = async () => {
+          const response = await Api.getStocks(selectedWatchlist);
+          setCurrentStocks(response);
+        };
+        getStocks();
       })
       .catch((error) => {
         console.error('Error adding stock to watchlist:', error);
       });
   };
 
-  console.log("Current stocks:", currentStocks)
-
     return (
-      <div className="dashboard-container flex flex-col items-stretch min-w-screen justify-center h-screen bg-bluegrey-500 w-screen">
+      <div className="bg-bluegrey-500 h-screen w-screen">
         <div className="text-2xl font-bold mb-4 text-white top-0">Dashboard</div>
         <div>
           {loading ? (
@@ -84,27 +87,23 @@ const Dashboard = () => {
                   </form>
                 </div>
               ) : (
-                <div className="bg-white rounded-md shadow-md">
+                <div className="bg-white rounded-md shadow-md m2">
                   <h1>Dashboard</h1>
                   <p>Welcome to your dashboard!</p>
                   <div>
                     <h2>Watchlist</h2>
                     <div>
-                      <select className= " text-black m-1 rounded-md bg-white"
-                        value={selectedWatchlist ? selectedWatchlist.name : ''}
-                        onChange={(e) => {
-                          const selected = watchlists.find(
-                            (watchlist) => watchlist.name === e.target.value
-                          );
-                          setSelectedWatchlist(selected);
-                        }}
-                      >
-                        {watchlists.map((watchlist) => (
-                          <option key={watchlist} value={watchlist}>
-                            {watchlist}
-                          </option>
-                        ))}
-                      </select>
+                      <label>Select watchlist:
+                        <select className= " text-black m-1 rounded-md bg-white"
+                          defaultValue={watchlists[0]}
+                          value={selectedWatchlist}
+                          onChange={(e) => setSelectedWatchlist(e.target.value)}
+                        >
+                          {watchlists.map((watchlist) => (
+                            <option value={watchlist}>{watchlist}</option>
+                          ))}
+                        </select>
+                      </label>
                       <input
                         type="text"
                         value={newStock}

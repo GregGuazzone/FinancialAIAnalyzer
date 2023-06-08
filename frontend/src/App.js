@@ -16,7 +16,7 @@ const App = () => {
 
   return (
     <Router>
-      <div className={darkMode ? 'dark' : ''}>
+      <div id= "app" className={darkMode ? 'dark' : ''}>
         <Routes>
           <Route exact path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />

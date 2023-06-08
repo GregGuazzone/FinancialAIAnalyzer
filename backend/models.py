@@ -1,15 +1,14 @@
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, String, ForeignKey, Table, ARRAY
+from sqlalchemy.ext.mutable import MutableList
+
 
 db = SQLAlchemy()
 
-
 def init_app(app):
     db.init_app(app)
-    with app.app_context():
-        db.create_all()
-
+    db.create_all(app=app)
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -38,17 +37,24 @@ class Watchlist(db.Model):
     id = Column(Integer, primary_key=True)
     name = Column(String(50), nullable=False)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-    stocks = Column(ARRAY(String(10)), nullable=False)
+    stocks = Column(MutableList.as_mutable(ARRAY(String(10))), nullable=False)
 
     def __init__(self, name, user_id):
         self.name = name
         self.user_id = user_id
-        self.stocks = []
+        self.stocks = MutableList()
 
     def add_stock(self, stock):
-        if not self.stocks:
-            self.stocks = [stock]
-        self.stocks.append(stock)
+        self.stocks = self.stocks or []
+        if stock not in self.stocks:
+            print('adding stock', stock)
+            print('stocks1', self.stocks)
+            self.stocks.append(stock)
+            print('stocks2', self.stocks)
+            db.session.add(self)
+            db.session.commit()
+            return True
+        return False
 
 
 class Portfolio(db.Model):
@@ -58,15 +64,3 @@ class Portfolio(db.Model):
     price = Column(String(50), nullable=False)
     quantity = Column(Integer, nullable=False)
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
-
-
-# Association tables
-watchlist_stock_association = Table('watchlist_stock_association', db.Model.metadata,
-                                    Column('watchlist_id', Integer, ForeignKey('watchlists.id')),
-                                    Column('stock_id', Integer, ForeignKey('stocks.id'))
-                                    )
-
-portfolio_stock_association = Table('portfolio_stock_association', db.Model.metadata,
-                                    Column('portfolio_id', Integer, ForeignKey('portfolios.id')),
-                                    Column('stock_id', Integer, ForeignKey('stocks.id'))
-                                    )

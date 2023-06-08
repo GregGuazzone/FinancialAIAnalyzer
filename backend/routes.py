@@ -9,8 +9,20 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'secret_key'
 app.config['JWT_SECRET_KEY'] = 'jwt_secret_key'
 
-init_app(app)
+db.init_app(app)
 CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+
+@app.cli.command("drop_db")                #used to initialize the database
+def drop_db():
+    db.drop_all()
+    print("Database dropped")
+    db.create_all()
+
+@app.cli.command("init_db")                #used to initialize the database
+def init_db():
+    db.create_all()
+    print("Database initialized")
+
 
 def authenticate(username, password):
     user = User.query.filter_by(username=username).first()
@@ -103,7 +115,7 @@ def get_stocks():
         return jsonify({'status': False, 'message': 'Watchlist does not exist'}), 404
     stocks = []
     for stock in watchlist.stocks:
-        stocks.append(stock.name)
+        stocks.append(stock)
     return jsonify({'status': True, 'stocks': stocks}), 200
 
 @app.route('/api/watchlists/create', methods=['POST'])
@@ -143,14 +155,11 @@ def add_to_watchlist():
     print(watchlist)
     if not watchlist:
         return jsonify({'status': False, 'message': 'Watchlist does not exist'}), 404
-    
-    if stock_ticker in watchlist.stocks:
+    if watchlist.add_stock(stock_ticker):
+        db.session.commit()
+        return jsonify({'status': True, 'message': 'Ticker added to watchlist successfully'}), 200
+    else:
         return jsonify({'status': False, 'message': 'Ticker already in watchlist'}), 400
-    
-    watchlist.add_stock(stock_ticker)
-    db.session.commit()
-    
-    return jsonify({'status': True, 'message': 'Ticker added to watchlist successfully'}), 200
 
 
 
