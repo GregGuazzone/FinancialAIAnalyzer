@@ -47,11 +47,15 @@ class Watchlist(db.Model):
     def add_stock(self, stock):
         self.stocks = self.stocks or []
         if stock not in self.stocks:
-            print('adding stock', stock)
-            print('stocks1', self.stocks)
             self.stocks.append(stock)
-            print('stocks2', self.stocks)
-            db.session.add(self)
+            db.session.commit()
+            return True
+        return False
+    
+    def remove_stock(self, stock):
+        self.stocks = self.stocks or []
+        if stock in self.stocks:
+            self.stocks.remove(stock)
             db.session.commit()
             return True
         return False

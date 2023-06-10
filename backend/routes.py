@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template, session
 from models import db, init_app, User, Watchlist, Stock, Portfolio
 from flask_jwt_extended import create_access_token, JWTManager, jwt_required, get_jwt_identity
 from flask_cors import CORS, cross_origin
+from data import get_stock_data
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://my_username:my_password@localhost:5432/my_database'
@@ -162,5 +163,35 @@ def add_to_watchlist():
         return jsonify({'status': False, 'message': 'Ticker already in watchlist'}), 400
 
 
+@app.route('/api/watchlist/remove', methods=['POST'])
+@jwt_required()
+def remove_from_watchlist():
+    current_user = get_jwt_identity()
+    user = User.query.filter_by(id=current_user).first()
+    if not user:
+        return jsonify({'status': False, 'message': 'User does not exist'}), 404
+    watchlist_name = request.json.get('watchlist')
+    stock_ticker = request.json.get('ticker')
+    # Find the watchlist by name
+    watchlist = Watchlist.query.filter_by(user_id=user.id, name=watchlist_name).first()
+    if not watchlist:
+        return jsonify({'status': False, 'message': 'Watchlist does not exist'}), 404
+    if watchlist.remove_stock(stock_ticker):
+        db.session.commit()
+        return jsonify({'status': True, 'message': 'Ticker removed from watchlist successfully'}), 200
+    else:
+        return jsonify({'status': False, 'message': 'Ticker not in watchlist'}), 400
 
+
+@app.route('/api/data/', methods=['GET'])
+@cross_origin()
+def get_data():
+    ticker = request.args.get('ticker')
+    if not ticker:
+        return jsonify({'status': False, 'message': 'Ticker not provided'}), 404
+    stock_data = get_stock_data(ticker)
+    print("Previous close:", stock_data["chart"]["result"][0]["meta"]["previousClose"])
+    if not stock_data:
+        return jsonify({'status': False, 'message': 'Ticker does not exist'}), 404
+    return jsonify({'status': True, 'data': stock_data}), 200
 

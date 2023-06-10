@@ -51,7 +51,7 @@ const Api = {
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.status == true)  {
+        if (data.status === true)  {
           return data.watchlists;
         }
         return data.message;
@@ -68,7 +68,7 @@ const Api = {
     })
       .then((response) => response.json())
       .then((data) => {
-        if (data.status == true)  {
+        if (data.status === true)  {
           console.log('Watchlist:', data.stocks)
           return data.stocks;
         }
@@ -110,8 +110,44 @@ const Api = {
         console.log('Success:', data.status);
         return data.status;
       });
-  }
+  },
 
+  removeFromWatchlist: async (watchlist, ticker) => {
+    const formData = {  watchlist: watchlist, ticker: ticker };
+    console.log('formData:', formData);
+    return fetch(`${API_BASE_URL}/watchlist/remove`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+      },
+      body: JSON.stringify(formData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('Success:', data.status);
+        return data.status;
+      });
+  },
+
+  getStockData: async (ticker) => {
+    return fetch(`${API_BASE_URL}/data/?ticker=${ticker}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === true)  {
+          console.log('Stock Data:', data.data)
+          return data.data;
+        }
+        return data.message;
+      }
+      );
+      },
 
 };
 
