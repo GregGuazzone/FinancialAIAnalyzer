@@ -14,3 +14,4 @@ flask_sqlalchemy
 sqlalchemy
 flask_jwt_extended
 requests
+yfinance

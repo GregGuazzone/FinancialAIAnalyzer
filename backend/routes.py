@@ -1,8 +1,8 @@
 from flask import Flask, request, jsonify, render_template, session
 from models import db, init_app, User, Watchlist, Stock, Portfolio
 from flask_jwt_extended import create_access_token, JWTManager, jwt_required, get_jwt_identity
-from flask_cors import CORS, cross_origin
-from data import get_stock_data
+from flask_cors import CORS
+import data
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://my_username:my_password@localhost:5432/my_database'
@@ -11,7 +11,7 @@ app.config['SECRET_KEY'] = 'secret_key'
 app.config['JWT_SECRET_KEY'] = 'jwt_secret_key'
 
 db.init_app(app)
-CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
+CORS(app, origins=['http://localhost:3000'])
 
 @app.cli.command("drop_db")                #used to initialize the database
 def drop_db():
@@ -63,7 +63,6 @@ def signup():
 
 
 @app.route('/api/login', methods=['POST'])
-@cross_origin()
 def login():
     user = User.query.filter_by(email=request.json['email']).first()
     if not user:
@@ -87,7 +86,6 @@ def check_login():
         return jsonify({'login_status': False}), 200
 
 @app.route('/api/watchlists_names', methods=['GET'])
-@cross_origin()
 @jwt_required()
 def get_watchlists_names():
     current_user = get_jwt_identity()
@@ -101,7 +99,6 @@ def get_watchlists_names():
     return jsonify({'status': True, 'watchlists': watchlists_names}), 200
 
 @app.route('/api/stocks/', methods=['GET'])
-@cross_origin()
 @jwt_required()
 def get_stocks():
     print("Request.args:", request.args.get('watchlist'))
@@ -183,15 +180,30 @@ def remove_from_watchlist():
         return jsonify({'status': False, 'message': 'Ticker not in watchlist'}), 400
 
 
-@app.route('/api/data/', methods=['GET'])
-@cross_origin()
-def get_data():
+@app.route('/api/data/current_price/', methods=['GET'])
+def get_current_price():
     ticker = request.args.get('ticker')
     if not ticker:
+        print("Ticker not provided")
         return jsonify({'status': False, 'message': 'Ticker not provided'}), 404
-    stock_data = get_stock_data(ticker)
-    print("Previous close:", stock_data["chart"]["result"][0]["meta"]["previousClose"])
-    if not stock_data:
+    print("Getting current price")
+    current_price = data.get_current_price(ticker)
+    print("Current price:", current_price)
+    if not current_price:
         return jsonify({'status': False, 'message': 'Ticker does not exist'}), 404
-    return jsonify({'status': True, 'data': stock_data}), 200
+    return jsonify({'status': True, 'currentPrice': current_price}), 200
+
+
+@app.route('/api/data/current_prices/', methods=['GET'])
+def get_current_prices():
+    tickers = request.args.get('tickers').split(',')
+    if not tickers:
+        print("Tickers not provided")
+        return jsonify({'status': False, 'message': 'Tickers not provided'}), 404
+    print("Getting current prices for ------: ", tickers[0])
+    current_prices = data.get_current_prices(tickers)
+    print("Current prices:", current_prices)
+    if not current_prices:
+        return jsonify({'status': False, 'message': 'Tickers do not exist'}), 404
+    return jsonify({'status': True, 'currentPrices': current_prices}), 200
 

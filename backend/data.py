@@ -1,4 +1,21 @@
 import requests
+import yfinance as yf
+
+def get_info(symbol):
+    stock = yf.Ticker(symbol)
+    return stock.info
+
+def get_current_price(ticker):
+    stock = yf.Ticker(ticker)
+    return stock.info['currentPrice']
+
+def get_current_prices(tickers):
+    stocks = yf.Tickers(' '.join(tickers))
+    prices = {}
+    for ticker in tickers:
+        prices[ticker] = stocks.tickers[ticker].info['currentPrice']
+    print(prices)
+    return(prices)
 
 def get_stock_data(symbol):
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
