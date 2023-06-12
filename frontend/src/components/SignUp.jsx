@@ -38,10 +38,10 @@ const SignUp = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen w-screen bg-bluegrey-500">
-      <div className="max-w-md w-full mx-4 bg-white p-6 rounded-md shadow-md">
-        <form onSubmit={handleSubmit} className="w-full max-w-sm">
-          <h2 className="text-2xl font-bold text-blue-300 mb-4">Sign Up</h2>
+    <div className="h-screen w-screen bg-bluegrey-500">
+      <h2 className="text-2xl font-bold text-white p-4">Sign Up</h2>
+      <div className="">
+        <form onSubmit={handleSubmit} className="rounded-md bg-white inline-flex flex-col p-8">
           <div className="mb-6">
             <label htmlFor="username" className="block mb-2 text-lg font-medium text-gray-700">
               Username

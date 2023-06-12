@@ -8,7 +8,8 @@ const Dashboard = () => {
   const [watchlists, setWatchlists] = useState([]);
   const [newWatchlist, setNewWatchlist] = useState('');
   const [selectedWatchlist, setSelectedWatchlist] = useState(null);
-  const [currentStocks, setCurrentStocks] = useState([]);
+  const [currentTickers, setCurrentTickers] = useState([]);
+  const [stockData, setStockData] = useState([]);
   const [newStock, setNewStock] = useState('');
 
   useEffect(() => {
@@ -24,13 +25,27 @@ const Dashboard = () => {
     getWatchlists();
   }, []);
 
+
+
   useEffect(() => {
     if (selectedWatchlist) {
       const getStocks = async () => {
         const response = await Api.getStocks(selectedWatchlist);
-        setCurrentStocks(response);
+        console.log('Current tickers:', response);
+        const currentPrices = await Api.getCurrentPrices(response);
+        console.log('Current prices:', currentPrices);
+        const promises = response.map(async (stock) => ({
+            symbol: stock,
+            price:  await currentPrices[stock],
+          }));
+        const data = await Promise.all(promises);
+        console.log('Data:', data);
+        setStockData(data);
+        console.log('Stock data:', stockData)
       };
       getStocks();
+
+      console.log('Current tickers:', currentTickers)
     }
   }, [selectedWatchlist]);
 
@@ -52,7 +67,7 @@ const Dashboard = () => {
         setNewStock('');
         const getStocks = async () => {
           const response = await Api.getStocks(selectedWatchlist);
-          setCurrentStocks(response);
+          setStockData(response);
         };
         getStocks();
       })
@@ -60,8 +75,6 @@ const Dashboard = () => {
         console.error('Error adding stock to watchlist:', error);
       });
   };
-
-  console.log(Api.getStockData('AAPL'));
 
   const columns = [
     {
@@ -74,10 +87,7 @@ const Dashboard = () => {
     },
   ];
 
-  const data = currentStocks.map((item) => ({
-    symbol: item,
-    price: 345.0,
-  }));
+  const data = stockData;
 
   const Table = () => {
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({ columns, data });
@@ -97,7 +107,7 @@ const Dashboard = () => {
           {rows.map((row) => {
             prepareRow(row);
             return (
-              <tr {...row.getRowProps()}>
+              <tr className=" border-2 border-black m-10" {...row.getRowProps()}>
                 {row.cells.map((cell) => (
                   <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
                 ))}
@@ -111,7 +121,7 @@ const Dashboard = () => {
 
   return (
     <div className="bg-bluegrey-500 h-screen w-screen">
-      <div className="text-2xl font-bold mb-4 text-white top-0">Dashboard</div>
+      <h2 className="text-2xl font-bold text-white p-4">Dashboard</h2>
       <div>
         {loading ? (
           <p className="text-white">Loading watchlists...</p>
@@ -132,9 +142,8 @@ const Dashboard = () => {
                 </form>
               </div>
             ) : (
-              <div className="bg-white rounded-md shadow-md m2">
-                <h1>Dashboard</h1>
-                <p>Welcome to your dashboard!</p>
+              <div className="bg-white rounded-md shadow-md m-2 ">
+                <p className="p-2">Welcome to your dashboard!</p>
                 <div>
                   <h2>Watchlist</h2>
                   <div>
@@ -158,8 +167,8 @@ const Dashboard = () => {
                     />
                     <button onClick={handleAddStock}>Add Stock</button>
                   </div>
-                  {selectedWatchlist && currentStocks && currentStocks.length > 0 && (
-                    <div>
+                  {selectedWatchlist && stockData && stockData.length > 0 && (
+                    <div className=" border-black border-2 rounded-sm">
                       <Table />
                     </div>
                   )}

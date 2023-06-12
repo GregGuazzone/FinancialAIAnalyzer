@@ -147,7 +147,45 @@ const Api = {
         return data.message;
       }
       );
+    },
+
+    getCurrentPrice: async (ticker) => {
+      return fetch(`${API_BASE_URL}/data/current_price/?ticker=${ticker}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === true)  {
+            console.log('Current Price:', data.currentPrice)
+            return data.currentPrice;
+          }
+          return data.message;
+        }
+        );
       },
+
+    getCurrentPrices: async (tickers) => {
+      return fetch(`${API_BASE_URL}/data/current_prices/?tickers=${tickers}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === true)  {
+            return data.currentPrices;
+          }
+          return data.message;
+        }
+        );
+      },
+
 
 };
 

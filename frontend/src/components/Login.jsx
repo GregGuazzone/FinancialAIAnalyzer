@@ -33,9 +33,10 @@ const handleSubmit = async (e) => {
 };
 
 return (
-  <div className="flex justify-center items-center h-screen w-screen bg-bluegrey-500">
-    <div className="max-w-md w-full mx-4 bg-white p-6 rounded-md shadow-md">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm">
+  <div className=" h-screen w-screen bg-bluegrey-500">
+    <h2 className="text-2xl font-bold p-4 text-white">Login</h2>
+    <div className="">
+      <form onSubmit={handleSubmit} className="rounded-md bg-white inline-flex flex-col p-8">
         <div className="mb-6">
           <label htmlFor="email" className="block mb-2 text-lg font-medium text-gray-700">
             Email
