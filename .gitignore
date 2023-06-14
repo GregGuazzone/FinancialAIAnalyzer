@@ -4,7 +4,7 @@ frontend/node_modules
 .pnp.js
 
 #virtual environment
-backend/venv
+backend/.venv
 
 #database instance
 backend/instance

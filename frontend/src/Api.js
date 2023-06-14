@@ -110,7 +110,7 @@ const Api = {
         console.log('Success:', data.status);
         return data.status;
       });
-  },
+    },
 
   removeFromWatchlist: async (watchlist, ticker) => {
     const formData = {  watchlist: watchlist, ticker: ticker };
@@ -185,8 +185,6 @@ const Api = {
         }
         );
       },
-
-
 };
 
 
