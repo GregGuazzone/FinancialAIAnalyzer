@@ -10,8 +10,9 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'secret_key'
 app.config['JWT_SECRET_KEY'] = 'jwt_secret_key'
 
-db.init_app(app)
 CORS(app, origins=['http://localhost:3000'])
+db.init_app(app)
+
 
 @app.cli.command("drop_db")                #used to initialize the database
 def drop_db():
@@ -141,6 +142,8 @@ def create_watchlist():
 @app.route('/api/watchlist/add', methods=['POST'])
 @jwt_required()
 def add_to_watchlist():
+    if not data.valid_ticker(request.json.get('ticker')):
+        return jsonify({'status': False, 'message': 'Invalid ticker'}), 400
     current_user = get_jwt_identity()
     user = User.query.filter_by(id=current_user).first()
     if not user:
@@ -196,10 +199,11 @@ def get_current_price():
 
 @app.route('/api/data/current_prices/', methods=['GET'])
 def get_current_prices():
-    tickers = request.args.get('tickers').split(',')
+    tickers = request.args.get('tickers')
     if not tickers:
         print("Tickers not provided")
         return jsonify({'status': False, 'message': 'Tickers not provided'}), 404
+    tickers = request.args.get('tickers').split(',')
     print("Getting current prices for ------: ", tickers[0])
     current_prices = data.get_current_prices(tickers)
     print("Current prices:", current_prices)
