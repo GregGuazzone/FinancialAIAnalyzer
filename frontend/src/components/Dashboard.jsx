@@ -28,26 +28,39 @@ const Dashboard = () => {
 
 
   useEffect(() => {
+    let intervalId;
+  
+    const getStocks = async () => {
+      const response = await Api.getStocks(selectedWatchlist);
+      console.log('Current tickers:', response);
+      const currentPrices = await Api.getCurrentPrices(response);
+      console.log('Current prices:', currentPrices);
+      const promises = response.map(async (stock) => ({
+        symbol: stock,
+        price: await currentPrices[stock],
+      }));
+      const updatedData = await Promise.all(promises);
+      console.log('Data:', updatedData);
+      setStockData(updatedData);
+      Api.getStockData('AAPL');
+    };
+  
+    const startPeriodicUpdates = () => {
+      intervalId = setInterval(() => {
+        getStocks();
+      }, 5000); // 5 seconds interval
+    };
+  
     if (selectedWatchlist) {
-      const getStocks = async () => {
-        const response = await Api.getStocks(selectedWatchlist);
-        console.log('Current tickers:', response);
-        const currentPrices = await Api.getCurrentPrices(response);
-        console.log('Current prices:', currentPrices);
-        const promises = response.map(async (stock) => ({
-            symbol: stock,
-            price:  await currentPrices[stock],
-          }));
-        const data = await Promise.all(promises);
-        console.log('Data:', data);
-        setStockData(data);
-        console.log('Stock data:', stockData)
-      };
       getStocks();
-
-      console.log('Current tickers:', currentTickers)
+      startPeriodicUpdates();
     }
+  
+    return () => {
+      clearInterval(intervalId); // Clear the interval when component unmounts
+    };
   }, [selectedWatchlist]);
+
 
   const handleAddWatchlist = () => {
     Api.addWatchlist(newWatchlist)

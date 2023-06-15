@@ -131,7 +131,7 @@ const Api = {
   },
 
   getStockData: async (ticker) => {
-    return fetch(`${API_BASE_URL}/data/?ticker=${ticker}`, {
+    return fetch(`${API_BASE_URL}/data/info/?ticker=${ticker}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -160,7 +160,6 @@ const Api = {
         .then((response) => response.json())
         .then((data) => {
           if (data.status === true)  {
-            console.log('Current Price:', data.currentPrice)
             return data.currentPrice;
           }
           return data.message;
@@ -179,6 +178,7 @@ const Api = {
         .then((response) => response.json())
         .then((data) => {
           if (data.status === true)  {
+            console.log('Current Prices:', data.currentPrices)
             return data.currentPrices;
           }
           return data.message;
