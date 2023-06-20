@@ -1,204 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import { useTable } from 'react-table';
-import Api from '../Api';
-import '../App.css';
+import React, { useState } from 'react';
+import Watchlists from './elements/Watchlists';
+import Portfolio from './elements/Portfolio';
 
 const Dashboard = () => {
-  const [loading, setLoading] = useState(true);
-  const [watchlists, setWatchlists] = useState([]);
-  const [newWatchlist, setNewWatchlist] = useState('');
-  const [selectedWatchlist, setSelectedWatchlist] = useState(null);
-  const [currentTickers, setCurrentTickers] = useState([]);
-  const [stockData, setStockData] = useState([]);
-  const [newStock, setNewStock] = useState('');
+  const [element, setElement] = useState('Watchlists');
 
-  useEffect(() => {
-    const getWatchlists = async () => {
-      const response = await Api.getWatchlists();
-      setLoading(false);
-      setWatchlists(response);
-      if (response.length > 0) {
-        console.log('Selected watchlist:', response[0]);
-        setSelectedWatchlist(response[0]);
-      }
-    };
-    getWatchlists();
-  }, []);
-
-
-
-  useEffect(() => {
-    let intervalId;
-  
-    const getStocks = async () => {
-      const response = await Api.getStocks(selectedWatchlist);
-      console.log('Current tickers:', response);
-      const currentPrices = await Api.getCurrentPrices(response);
-      console.log('Current prices:', currentPrices);
-      const promises = response.map(async (stock) => ({
-        symbol: stock,
-        price: await currentPrices[stock],
-      }));
-      const updatedData = await Promise.all(promises);
-      console.log('Data:', updatedData);
-      setStockData(updatedData);
-      Api.getStockData('AAPL');
-    };
-  
-    const startPeriodicUpdates = () => {
-      intervalId = setInterval(() => {
-        getStocks();
-      }, 5000); // 5 seconds interval
-    };
-  
-    if (selectedWatchlist) {
-      getStocks();
-      startPeriodicUpdates();
+  const renderComponent = () => {
+    switch (element) {
+      case 'Watchlists':
+        return <Watchlists />;
+      case 'Portfolio':
+        return <Portfolio />;
+      default:
+        return <Watchlists />;
     }
-  
-    return () => {
-      clearInterval(intervalId); // Clear the interval when component unmounts
-    };
-  }, [selectedWatchlist]);
-
-
-  const handleAddWatchlist = () => {
-    Api.addWatchlist(newWatchlist)
-      .then((response) => {
-        setWatchlists([...watchlists, response]);
-        setSelectedWatchlist(response.name);
-      })
-      .catch((error) => {
-        console.error('Error adding watchlist:', error);
-      });
   };
 
-  const handleAddStock = () => {
-    console.log('Current watchlist:', selectedWatchlist);
-    Api.addToWatchlist(selectedWatchlist, newStock)
-      .then(() => {
-        setNewStock('');
-        const getStocks = async () => {
-          const response = await Api.getStocks(selectedWatchlist);
-          setStockData(response);
-        };
-        getStocks();
-      })
-      .catch((error) => {
-        console.error('Error adding stock to watchlist:', error);
-      });
-  };
-
-  const columns = [
-    {
-      Header: 'Symbol',
-      accessor: 'symbol',
-    },
-    {
-      Header: 'Price',
-      accessor: 'price',
-    },
-  ];
-
-  const data = stockData;
-
-  const Table = () => {
-    const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({ columns, data });
-
-    return (
-      <table {...getTableProps()}>
-        <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {rows.map((row) => {
-            prepareRow(row);
-            return (
-              <tr className=" border-2 border-black m-10" {...row.getRowProps()}>
-                {row.cells.map((cell) => (
-                  <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
-                ))}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    );
+  const switchElement = (selectedElement) => {
+    setElement(selectedElement);
   };
 
   return (
-    <div className="bg-bluegrey-500 h-screen w-screen">
-      <h2 className="text-2xl font-bold text-white p-4">Dashboard</h2>
-      <div>
-        {loading ? (
-          <p className="text-white">Loading watchlists...</p>
-        ) : (
-          <div>
-            {watchlists.length === 0 ? (
-              <div>
-                <p className="text-white">No watchlists found.</p>
-                <form className="rounded-md bg-white inline-flex">
-                  <input
-                    className="text-black m-1 rounded-md bg-white"
-                    type="text"
-                    value={newWatchlist}
-                    onChange={(e) => setNewWatchlist(e.target.value)}
-                    placeholder="Enter watchlist name"
-                  />
-                  <button className="text-black m-1 rounded-md bg-white border-black border-solid" onClick={handleAddWatchlist}>Add Watchlist</button>
-                </form>
-              </div>
-            ) : (
-              <div className="bg-white rounded-md shadow-md m-2 ">
-                <p className="p-2">Welcome to your dashboard!</p>
-                <div>
-                  <h2>Watchlist</h2>
-                  <div>
-                    <label>Select watchlist:
-                      <select
-                        className="text-black m-1 rounded-md bg-white"
-                        defaultValue={watchlists[0]}
-                        value={selectedWatchlist}
-                        onChange={(e) => setSelectedWatchlist(e.target.value)}
-                      >
-                        {watchlists.map((watchlist) => (
-                          <option key={watchlist} value={watchlist}>{watchlist}</option>
-                        ))}
-                      </select>
-                    </label>
-                    <input
-                      type="text"
-                      value={newStock}
-                      onChange={(e) => setNewStock(e.target.value)}
-                      placeholder="Enter stock symbol"
-                    />
-                    <button onClick={handleAddStock}>Add Stock</button>
-                  </div>
-                  {selectedWatchlist && stockData && stockData.length > 0 && (
-                    <div className=" border-black border-2 rounded-sm">
-                      <Table />
-                    </div>
-                  )}
-                </div>
-                <form className="rounded-md bg-white inline-flex">
-                  <input className="text-black m-1 rounded-md bg-white"
-                    type="text"
-                    value={newWatchlist}
-                    onChange={(e) => setNewWatchlist(e.target.value)}
-                    placeholder="Enter watchlist name" />
-                  <button className="text-black m-1 rounded-md bg-white border-black border-solid" onClick={handleAddWatchlist}>Add Watchlist</button>
-                </form>
-              </div>
-            )}
-          </div>
-        )}
+    <div className="App flex flex-col justify-center items-center">
+      <header className="App-header w-60 pt-4 flex flex-row justify-between">
+        <div>
+            <h1
+            className="App-title p-2 text-2xl"
+            onClick={() => switchElement('Watchlists')}
+            >
+            Watchlist
+            </h1>
+        </div>
+        <div>
+            <h1
+            className="App-title p-2 text-2xl"
+            onClick={() => switchElement('Portfolio')}
+            >
+            Portfolio
+            </h1>
+        </div>
+      </header>
+      <div className="box-content h-3 w-60 relative flex justify-center items-center">
+        <div
+          className="box-content h-3 w-3 bg-blue-500 bottom-0 transform rotate-45 origin-bottom translate-y-1"
+        ></div>
       </div>
+      <div className="App-body">{renderComponent()}</div>
     </div>
   );
 };
