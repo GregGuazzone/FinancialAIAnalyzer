@@ -10,7 +10,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'secret_key'
 app.config['JWT_SECRET_KEY'] = 'jwt_secret_key'
 
-CORS(app, origins=['http://localhost:3000'])
+CORS(app)
 db.init_app(app)
 
 
@@ -209,16 +209,14 @@ def get_current_prices():
         return jsonify({'status': False, 'message': 'Tickers do not exist'}), 404
     return jsonify({'status': True, 'currentPrices': current_prices}), 200
 
-@app.route('/api/data/info', methods=['GET'])
+@app.route('/api/data/info/', methods=['GET'])
 def get_stock_data():
     ticker = request.args.get('ticker')
     if not ticker:
         print("Ticker not provided")
         return jsonify({'status': False, 'message': 'Ticker not provided'}), 404
-    print("Getting data")
-    data = data.get_stock_data(ticker)
-    print("Data:", data)
+    stock_data = data.get_stock_data(ticker)
     if not data:
         return jsonify({'status': False, 'message': 'Ticker does not exist'}), 404
-    return jsonify({'status': True, 'data': data}), 200
+    return jsonify({'status': True, 'data': stock_data}), 200
 
