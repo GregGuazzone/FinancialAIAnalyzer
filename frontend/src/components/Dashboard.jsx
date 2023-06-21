@@ -20,6 +20,9 @@ const Dashboard = () => {
     setElement(selectedElement);
   };
 
+  const translateX = element === 'Watchlists' ? '-translate-x-16' : 'translate-x-16';
+  console.log("Position: ", translateX)
+
   return (
     <div className="App flex flex-col justify-center items-center">
       <header className="App-header w-60 pt-4 flex flex-row justify-between">
@@ -42,7 +45,7 @@ const Dashboard = () => {
       </header>
       <div className="box-content h-3 w-60 relative flex justify-center items-center">
         <div
-          className="box-content h-3 w-3 bg-blue-500 bottom-0 transform rotate-45 origin-bottom translate-y-1"
+          className={`box-content h-3 w-3 bg-blue-500 bottom-0 transform rotate-45 origin-bottom transition-transform duration-500 translate-y-1 ${translateX}`}
         ></div>
       </div>
       <div className="App-body">{renderComponent()}</div>
