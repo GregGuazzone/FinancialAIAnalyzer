@@ -163,7 +163,6 @@ const Portfolio = () => {
                     <label>Select watchlist:
                       <select
                         className="text-black m-1 rounded-md bg-white"
-                        defaultValue={watchlists[0]}
                         value={selectedWatchlist}
                         onChange={(e) => setSelectedWatchlist(e.target.value)}
                       >

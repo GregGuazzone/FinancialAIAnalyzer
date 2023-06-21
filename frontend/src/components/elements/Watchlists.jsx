@@ -2,14 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useTable } from 'react-table';
 import Api from '../../Api';
 import '../../App.css';
+import Stock from '../../Stock';
+import ChartComponent from '../../Chart';
 
+
+
+console.log("AAPL info: ", Stock.getSeriesIntraday('AAPL',5));
+console.log("AAPL chart: ", ChartComponent.getChart('AAPL',5));
 
 const Watchlists = () => {
   const [loading, setLoading] = useState(true);
   const [watchlists, setWatchlists] = useState([]);
   const [newWatchlist, setNewWatchlist] = useState('');
   const [selectedWatchlist, setSelectedWatchlist] = useState(null);
-  const [currentTickers, setCurrentTickers] = useState([]);
   const [stockData, setStockData] = useState([]);
   const [newStock, setNewStock] = useState('');
 
@@ -26,26 +31,26 @@ const Watchlists = () => {
     getWatchlists();
   }, []);
 
-
+  const getStocks = async () => {
+    const response = await Api.getStocks(selectedWatchlist);
+    console.log('Current tickers:', response);
+    if (response.length < 1) {
+      return;
+    }
+    const currentPrices = await Api.getCurrentPrices(response);
+    console.log('Current prices:', currentPrices);
+    const promises = response.map(async (stock) => ({
+      symbol: stock,
+      price: await currentPrices[stock],
+    }));
+    const updatedData = await Promise.all(promises);
+    console.log('Data:', updatedData);
+    setStockData(updatedData);
+  };
 
   useEffect(() => {
     let intervalId;
-  
-    const getStocks = async () => {
-      const response = await Api.getStocks(selectedWatchlist);
-      console.log('Current tickers:', response);
-      const currentPrices = await Api.getCurrentPrices(response);
-      console.log('Current prices:', currentPrices);
-      const promises = response.map(async (stock) => ({
-        symbol: stock,
-        price: await currentPrices[stock],
-      }));
-      const updatedData = await Promise.all(promises);
-      console.log('Data:', updatedData);
-      setStockData(updatedData);
-      Api.getStockData('AAPL');
-    };
-  
+
     const startPeriodicUpdates = () => {
       intervalId = setInterval(() => {
         getStocks();
@@ -67,7 +72,8 @@ const Watchlists = () => {
     Api.addWatchlist(newWatchlist)
       .then((response) => {
         setWatchlists([...watchlists, response]);
-        setSelectedWatchlist(response.name);
+        console.log('New watchlist:', response);
+        setSelectedWatchlist(response);
       })
       .catch((error) => {
         console.error('Error adding watchlist:', error);
@@ -79,10 +85,6 @@ const Watchlists = () => {
     Api.addToWatchlist(selectedWatchlist, newStock)
       .then(() => {
         setNewStock('');
-        const getStocks = async () => {
-          const response = await Api.getStocks(selectedWatchlist);
-          setStockData(response);
-        };
         getStocks();
       })
       .catch((error) => {
@@ -164,7 +166,6 @@ const Watchlists = () => {
                     <label>Select watchlist:
                       <select
                         className="text-black m-1 rounded-md bg-white"
-                        defaultValue={watchlists[0]}
                         value={selectedWatchlist}
                         onChange={(e) => setSelectedWatchlist(e.target.value)}
                       >
@@ -182,7 +183,7 @@ const Watchlists = () => {
                     <button onClick={handleAddStock}>Add Stock</button>
                   </div>
                   {selectedWatchlist && stockData && stockData.length > 0 && (
-                    <div className=" border-black border-2 rounded-sm p-3 m-4">
+                    <div className=" border-black border-2 rounded-sm p-1 m-4 flex flex-col">
                       <Table />
                     </div>
                   )}
