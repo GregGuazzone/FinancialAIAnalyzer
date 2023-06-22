@@ -3,12 +3,8 @@ import { useTable } from 'react-table';
 import Api from '../../Api';
 import '../../App.css';
 import Stock from '../../Stock';
-import ChartComponent from '../../Chart';
+import StockChart from '../../Chart';
 
-
-
-console.log("AAPL info: ", Stock.getSeriesIntraday('AAPL',5));
-console.log("AAPL chart: ", ChartComponent.getChart('AAPL',5));
 
 const Watchlists = () => {
   const [loading, setLoading] = useState(true);
@@ -183,8 +179,9 @@ const Watchlists = () => {
                     <button onClick={handleAddStock}>Add Stock</button>
                   </div>
                   {selectedWatchlist && stockData && stockData.length > 0 && (
-                    <div className=" border-black border-2 rounded-sm p-1 m-4 flex flex-col">
-                      <Table />
+                    <div className=" border-black border-2 rounded-sm p-1 m-4 flex flex-row">
+                          <Table />
+                          <StockChart />
                     </div>
                   )}
                 </div>

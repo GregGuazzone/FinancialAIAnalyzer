@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://127.0.0.1:5000/api'; // Replace with your Flask backend URL
+const API_BASE_URL = 'http://127.0.0.1:5000/api';
 
 const Api = {
   signup: async (formData) => {
