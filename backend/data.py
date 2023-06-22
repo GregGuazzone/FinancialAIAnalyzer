@@ -1,5 +1,6 @@
 import requests
 import yfinance as yf
+from pandas_datareader import data as pdr
 '''
 from langchain.llms import OpenAI
 from langchain.embeddings import OpenAIEmbeddings
@@ -19,6 +20,8 @@ from langchain.agents.agent_toolkits import (
 )
 
 '''
+
+yf.pdr_override()
 
 def get_info(symbol):
     stock = yf.Ticker(symbol)
@@ -48,17 +51,16 @@ def get_current_prices(tickers):
     print(prices)
     return(prices)
 
-def get_stock_data(symbol):
-    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}"
-    headers = {
-        "Accept": "application/json",
-        "User-Agent": "Mozilla/5.0"
-    }
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        data = response.json()
-        return data
-    else:
-        print(f"Error accessing stock data. Status code: {response.status_code}")
-        return None
-
+def get_chart_data(symbol, period):
+    if period == '1d':
+        interval = '30m'
+    elif period == '1wk':
+        interval = '90m'
+    elif period == '1mo':
+        interval = '1d'
+    elif period == '3mo':
+        interval = '5d'
+    data = pdr.get_data_yahoo(symbol, period=period, interval=interval)
+    open_prices = data['Open'].tolist()
+    print(open_prices)
+    return open_prices
