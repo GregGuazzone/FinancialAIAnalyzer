@@ -1,6 +1,6 @@
 import requests
 import yfinance as yf
-from pandas_datareader import data as pdr
+import pandas as pd
 '''
 from langchain.llms import OpenAI
 from langchain.embeddings import OpenAIEmbeddings
@@ -51,7 +51,7 @@ def get_current_prices(tickers):
     print(prices)
     return(prices)
 
-def get_chart_data(symbol, period):
+'''def get_chart_data(symbol, period):
     if period == '1d':
         interval = '30m'
     elif period == '1wk':
@@ -64,3 +64,23 @@ def get_chart_data(symbol, period):
     open_prices = data['Open'].tolist()
     print(open_prices)
     return open_prices
+'''
+    
+def get_charts_data(symbols, period):
+    if period == '1d':
+        interval = '30m'
+    elif period == '1wk':
+        interval = '90m'
+    elif period == '1mo':
+        interval = '1d'
+    elif period == '3mo':
+        interval = '5d'
+    data = yf.download(symbols, period=period, interval=interval)
+    open_prices = {}
+    for symbol in symbols:
+        open_prices[symbol] = data['Open'][symbol].tolist()
+    return open_prices
+
+tickers = ['SPY', 'AAPL']
+
+print(get_charts_data(tickers, '1d'))
