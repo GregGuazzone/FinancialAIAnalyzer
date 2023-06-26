@@ -21,7 +21,6 @@ const handleChange = (e) => {
 const handleSubmit = async (e) => {
   e.preventDefault();
   const status = await Api.login(formData)
-  console.log("Status:", status)
   if(status)  {
     navigate('/dashboard');
     setLoginError('');

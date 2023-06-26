@@ -18,7 +18,6 @@ const Portfolio = () => {
       setLoading(false);
       setWatchlists(response);
       if (response.length > 0) {
-        console.log('Selected watchlist:', response[0]);
         setSelectedWatchlist(response[0]);
       }
     };
@@ -32,15 +31,12 @@ const Portfolio = () => {
   
     const getStocks = async () => {
       const response = await Api.getStocks(selectedWatchlist);
-      console.log('Current tickers:', response);
       const currentPrices = await Api.getCurrentPrices(response);
-      console.log('Current prices:', currentPrices);
       const promises = response.map(async (stock) => ({
         symbol: stock,
         price: await currentPrices[stock],
       }));
       const updatedData = await Promise.all(promises);
-      console.log('Data:', updatedData);
       setStockData(updatedData);
       Api.getStockData('AAPL');
     };
@@ -74,7 +70,6 @@ const Portfolio = () => {
   };
 
   const handleAddStock = () => {
-    console.log('Current watchlist:', selectedWatchlist);
     Api.addToWatchlist(selectedWatchlist, newStock)
       .then(() => {
         setNewStock('');

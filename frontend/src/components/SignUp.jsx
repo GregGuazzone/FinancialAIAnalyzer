@@ -24,11 +24,9 @@ const SignUp = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { success, message, error } = await Api.signup(formData);
-    console.log(message);
     console.log(error)
     if (success) {
       navigate('/dashboard');
-      console.log(message);
       // Redirect or show success message
     } else {
       

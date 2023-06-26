@@ -21,7 +21,6 @@ const Dashboard = () => {
   };
 
   const translateX = element === 'Watchlists' ? '-translate-x-16' : 'translate-x-16';
-  console.log("Position: ", translateX)
 
   return (
     <div className="App flex flex-col justify-center items-center">

@@ -24,7 +24,6 @@ const StockChart = ({ symbol, period }) => {
           const response = await fetch(`${API_BASE_URL}/data/chart/?ticker=AAPl&period=1d`);
           const data = await response.json();
           if (data.status === true) {
-            console.log('Stock Data:', data.data);
             const formattedData = {
               labels: Array.from({ length: data.data.length }, (_, i) => i + 1),
               datasets: [
@@ -47,7 +46,6 @@ const StockChart = ({ symbol, period }) => {
       fetchData();
     }, [symbol, period]);
   
-    console.log('chartData:', chartData);
   
     if (!chartData) {
       return <p>Loading chart data...</p>;

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useTable } from 'react-table';
 import Api from '../../Api';
 import '../../App.css';
-import Stock from '../../Stock';
 import StockChart from '../../Chart';
 
 
@@ -20,7 +19,6 @@ const Watchlists = () => {
       setLoading(false);
       setWatchlists(response);
       if (response.length > 0) {
-        console.log('Selected watchlist:', response[0]);
         setSelectedWatchlist(response[0]);
       }
     };
@@ -29,18 +27,16 @@ const Watchlists = () => {
 
   const getStocks = async () => {
     const response = await Api.getStocks(selectedWatchlist);
-    console.log('Current tickers:', response);
     if (response.length < 1) {
+      setStockData([]);
       return;
     }
     const currentPrices = await Api.getCurrentPrices(response);
-    console.log('Current prices:', currentPrices);
     const promises = response.map(async (stock) => ({
       symbol: stock,
       price: await currentPrices[stock],
     }));
     const updatedData = await Promise.all(promises);
-    console.log('Data:', updatedData);
     setStockData(updatedData);
   };
 
@@ -68,7 +64,6 @@ const Watchlists = () => {
     Api.addWatchlist(newWatchlist)
       .then((response) => {
         setWatchlists([...watchlists, response]);
-        console.log('New watchlist:', response);
         setSelectedWatchlist(response);
       })
       .catch((error) => {
@@ -77,7 +72,6 @@ const Watchlists = () => {
   };
 
   const handleAddStock = () => {
-    console.log('Current watchlist:', selectedWatchlist);
     Api.addToWatchlist(selectedWatchlist, newStock)
       .then(() => {
         setNewStock('');
@@ -162,7 +156,6 @@ const Watchlists = () => {
                     <label>Select watchlist:
                       <select
                         className="text-black m-1 rounded-md bg-white"
-                        value={selectedWatchlist}
                         onChange={(e) => setSelectedWatchlist(e.target.value)}
                       >
                         {watchlists.map((watchlist) => (
@@ -178,10 +171,16 @@ const Watchlists = () => {
                     />
                     <button onClick={handleAddStock}>Add Stock</button>
                   </div>
-                  {selectedWatchlist && stockData && stockData.length > 0 && (
-                    <div className=" border-black border-2 rounded-sm p-1 m-4 flex flex-row">
+                  {selectedWatchlist && (
+                    <div className="border-black border-2 rounded-sm p-1 m-4 flex flex-row">
+                      {stockData.length > 0 ? (
+                        <>
                           <Table />
                           <StockChart />
+                        </>
+                      ) : (
+                        <p>No stocks found in the watchlist.</p>
+                      )}
                     </div>
                   )}
                 </div>

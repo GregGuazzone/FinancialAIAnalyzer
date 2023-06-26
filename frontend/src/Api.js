@@ -11,7 +11,6 @@ const Api = {
         body: JSON.stringify(formData),
       });
       const data = await response.json();
-      console.log('Data:', data);
       if (response.ok) {
         return { success: true, message: data.message };
       } else {
@@ -36,7 +35,6 @@ const Api = {
           console.log('Access Token:', data.access_token)
           localStorage.setItem('access_token', data.access_token);
         }
-        console.log('Success:', data.status);
         return data.status;
       })
   },
@@ -69,7 +67,6 @@ const Api = {
       .then((response) => response.json())
       .then((data) => {
         if (data.status === true)  {
-          console.log('Watchlist:', data.stocks)
           return data.stocks;
         }
         return data.message;
@@ -78,7 +75,6 @@ const Api = {
 
 
   addWatchlist: async (watchlist) => {
-    console.log('watchlist:', watchlist);
     return fetch(`${API_BASE_URL}/watchlists/create`, {
       method: 'POST',
       headers: {
@@ -89,14 +85,12 @@ const Api = {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log('Success:', data.status);
         return data.status;
       });
   },
 
   addToWatchlist: async (watchlist, ticker) => {
     const formData = {  watchlist: watchlist, ticker: ticker };
-    console.log('formData:', formData);
     return fetch(`${API_BASE_URL}/watchlist/add`, {
       method: 'POST',
       headers: {
@@ -107,14 +101,12 @@ const Api = {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log('Success:', data.status);
         return data.status;
       });
     },
 
   removeFromWatchlist: async (watchlist, ticker) => {
     const formData = {  watchlist: watchlist, ticker: ticker };
-    console.log('formData:', formData);
     return fetch(`${API_BASE_URL}/watchlist/remove`, {
       method: 'POST',
       headers: {
@@ -125,7 +117,6 @@ const Api = {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log('Success:', data.status);
         return data.status;
       });
   },
@@ -141,7 +132,6 @@ const Api = {
       .then((response) => response.json())
       .then((data) => {
         if (data.status === true)  {
-          console.log('Stock Data:', data.data)
           return data.data;
         }
         return data.message;
@@ -178,7 +168,6 @@ const Api = {
         .then((response) => response.json())
         .then((data) => {
           if (data.status === true)  {
-            console.log('Current Prices:', data.currentPrices)
             return data.currentPrices;
           }
           return data.message;
