@@ -21,8 +21,6 @@ from langchain.agents.agent_toolkits import (
 
 '''
 
-yf.pdr_override()
-
 def get_info(symbol):
     stock = yf.Ticker(symbol)
     return stock.info
@@ -51,7 +49,7 @@ def get_current_prices(tickers):
     print(prices)
     return(prices)
 
-'''def get_chart_data(symbol, period):
+def get_chart_data(symbol, period):
     if period == '1d':
         interval = '30m'
     elif period == '1wk':
@@ -60,13 +58,15 @@ def get_current_prices(tickers):
         interval = '1d'
     elif period == '3mo':
         interval = '5d'
-    data = pdr.get_data_yahoo(symbol, period=period, interval=interval)
+    data = yf.download(symbol, period=period, interval=interval)
+    print("data:", data)
     open_prices = data['Open'].tolist()
     print(open_prices)
     return open_prices
-'''
+
     
 def get_charts_data(symbols, period):
+    print("Symbols:", symbols)
     if period == '1d':
         interval = '30m'
     elif period == '1wk':
@@ -80,7 +80,3 @@ def get_charts_data(symbols, period):
     for symbol in symbols:
         open_prices[symbol] = data['Open'][symbol].tolist()
     return open_prices
-
-tickers = ['SPY', 'AAPL']
-
-print(get_charts_data(tickers, '1d'))

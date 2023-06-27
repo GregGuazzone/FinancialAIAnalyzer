@@ -11,6 +11,7 @@ const Watchlists = () => {
   const [newWatchlist, setNewWatchlist] = useState('');
   const [selectedWatchlist, setSelectedWatchlist] = useState(null);
   const [stockData, setStockData] = useState([]);
+  const [stocksInSelectedWatchlist, setStocksInSelectedWatchlist] = useState([]);
   const [newStock, setNewStock] = useState('');
 
   useEffect(() => {
@@ -29,8 +30,10 @@ const Watchlists = () => {
     const response = await Api.getStocks(selectedWatchlist);
     if (response.length < 1) {
       setStockData([]);
+      setStocksInSelectedWatchlist([])
       return;
     }
+    setStocksInSelectedWatchlist(response);
     const currentPrices = await Api.getCurrentPrices(response);
     const promises = response.map(async (stock) => ({
       symbol: stock,
@@ -38,6 +41,7 @@ const Watchlists = () => {
     }));
     const updatedData = await Promise.all(promises);
     setStockData(updatedData);
+    
   };
 
   useEffect(() => {
@@ -46,7 +50,7 @@ const Watchlists = () => {
     const startPeriodicUpdates = () => {
       intervalId = setInterval(() => {
         getStocks();
-      }, 5000); // 5 seconds interval
+      }, 15000); // 5 seconds interval
     };
   
     if (selectedWatchlist) {
@@ -92,6 +96,9 @@ const Watchlists = () => {
       accessor: 'price',
     },
   ];
+
+  console.log(selectedWatchlist)
+  console.log(stockData)
 
   const data = stockData;
 
@@ -176,7 +183,9 @@ const Watchlists = () => {
                       {stockData.length > 0 ? (
                         <>
                           <Table />
-                          <StockChart />
+                          {stocksInSelectedWatchlist.map((stock) => (
+                            <StockChart key={stock} symbols={stocksInSelectedWatchlist} period='1d' />
+                          ))}
                         </>
                       ) : (
                         <p>No stocks found in the watchlist.</p>

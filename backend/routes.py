@@ -220,9 +220,10 @@ def get_stock_data():
         return jsonify({'status': False, 'message': 'Ticker does not exist'}), 404
     return jsonify({'status': True, 'data': stock_data}), 200
 
+
 @app.route('/api/data/chart/', methods=['GET'])
 def get_stock_chart():
-    tickers = request.args.get('ticker')
+    tickers = request.args.get('tickers')
     period = request.args.get('period')
     if not tickers:
         print("Ticker not provided")
@@ -231,8 +232,8 @@ def get_stock_chart():
     if not period:
         print("Period not provided")
         return jsonify({'status': False, 'message': 'Period not provided'}), 404
-    chart_data = data.get_chart_data(tickers,period)
-    print(chart_data)
-    if not data:
-        return jsonify({'status': False, 'message': 'Error getting data'}), 404
-    return jsonify({'status': True, 'data': chart_data}), 200
+    stocks_chart = data.get_charts_data(tickers, period)
+    if not stocks_chart:
+        return jsonify({'status': False, 'message': 'Ticker does not exist'}), 404
+    return jsonify({'status': True, 'chart': stocks_chart}), 200
+
