@@ -4,64 +4,72 @@ import Api from '../../Api';
 import '../../App.css';
 import StockChart from '../../Chart';
 
-
 const Watchlists = () => {
   const [loading, setLoading] = useState(true);
-  const [watchlists, setWatchlists] = useState([]);
-  const [newWatchlist, setNewWatchlist] = useState('');
+  const [watchlists, setWatchlists] = useState(null);
   const [selectedWatchlist, setSelectedWatchlist] = useState(null);
-  const [stockData, setStockData] = useState([]);
+  const [currentPrices, setCurrentPrices] = useState([]);
   const [stocksInSelectedWatchlist, setStocksInSelectedWatchlist] = useState([]);
+  const [newWatchlist, setNewWatchlist] = useState('');
   const [newStock, setNewStock] = useState('');
 
-  useEffect(() => {
-    const getWatchlists = async () => {
-      const response = await Api.getWatchlists();
-      setLoading(false);
-      setWatchlists(response);
-      if (response.length > 0) {
-        setSelectedWatchlist(response[0]);
-      }
-    };
-    getWatchlists();
-  }, []);
-
-  const getStocks = async () => {
-    const response = await Api.getStocks(selectedWatchlist);
-    if (response.length < 1) {
-      setStockData([]);
-      setStocksInSelectedWatchlist([])
-      return;
-    }
-    setStocksInSelectedWatchlist(response);
-    const currentPrices = await Api.getCurrentPrices(response);
-    const promises = response.map(async (stock) => ({
-      symbol: stock,
-      price: await currentPrices[stock],
-    }));
-    const updatedData = await Promise.all(promises);
-    setStockData(updatedData);
-    
+  const getWatchlists = async () => {
+    const response = await Api.getWatchlists();
+    setLoading(false);
+    return response;
   };
 
   useEffect(() => {
+    console.log("useEffect1")
+    getWatchlists().then((watchlists) => {
+      setWatchlists(watchlists);
+      setSelectedWatchlist(watchlists[3]);
+      getStocksInWatchlist(watchlists[3]).then((stocks) => {
+        setStocksInSelectedWatchlist(stocks)
+      })
+    });
+  }, []);
+
+  useEffect(() => {
+    console.log("Selected watchlist:", selectedWatchlist)
+    getStocksInWatchlist(selectedWatchlist).then((stocks) => {
+    updateCurrentPrices(stocks)
+    })
+  }, [selectedWatchlist]);
+
+
+  const getStocksInWatchlist = async (watchlist) => {
+    const response = await Api.getStocks(watchlist)
+    console.log("Response:", response)
+    return await Api.getStocks(watchlist);
+  };
+
+  const updateCurrentPrices = async (stocks) => {
+    console.log("Stocks:", stocks)
+    const currentPrices = await Api.getCurrentPrices(stocks);
+    console.log("currentPrices:", currentPrices)
+    const promises = Object.entries(currentPrices).map(async([symbol, prices])=> ({
+      symbol: symbol,
+      price: await currentPrices[symbol],
+    }));
+    const updatedData = await Promise.all(promises);
+    setCurrentPrices(updatedData);
+  };
+
+  useEffect(() => {
+    console.log("useEffect2")
     let intervalId;
 
     const startPeriodicUpdates = () => {
       intervalId = setInterval(() => {
-        getStocks();
-      }, 15000); // 5 seconds interval
+        //getStocks();
+      }, 15000); // 15 seconds interval
     };
-  
-    if (selectedWatchlist) {
-      getStocks();
-      startPeriodicUpdates();
-    }
   
     return () => {
-      clearInterval(intervalId); // Clear the interval when component unmounts
+      clearInterval(intervalId);
     };
-  }, [selectedWatchlist]);
+  },[selectedWatchlist]);
 
 
   const handleAddWatchlist = () => {
@@ -79,7 +87,6 @@ const Watchlists = () => {
     Api.addToWatchlist(selectedWatchlist, newStock)
       .then(() => {
         setNewStock('');
-        getStocks();
       })
       .catch((error) => {
         console.error('Error adding stock to watchlist:', error);
@@ -98,9 +105,9 @@ const Watchlists = () => {
   ];
 
   console.log(selectedWatchlist)
-  console.log(stockData)
+  console.log(currentPrices)
 
-  const data = stockData;
+  const data = currentPrices;
 
   const Table = () => {
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({ columns, data });
@@ -180,12 +187,10 @@ const Watchlists = () => {
                   </div>
                   {selectedWatchlist && (
                     <div className="border-black border-2 rounded-sm p-1 m-4 flex flex-row">
-                      {stockData.length > 0 ? (
+                      {stocksInSelectedWatchlist.length > 0 ? (
                         <>
                           <Table />
-                          {stocksInSelectedWatchlist.map((stock) => (
-                            <StockChart key={stock} symbols={stocksInSelectedWatchlist} period='1d' />
-                          ))}
+                            <StockChart symbols={stocksInSelectedWatchlist} period='1d' />
                         </>
                       ) : (
                         <p>No stocks found in the watchlist.</p>
