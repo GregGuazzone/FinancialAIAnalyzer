@@ -173,7 +173,29 @@ const Api = {
           return data.message;
         }
         );
-      },
+    },
+
+    getChartData: async (tickers, period) => {
+      console.log('tickers', tickers)
+      return fetch(`${API_BASE_URL}/data/chart/?tickers=${tickers}&period=${period}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.status === true)  {
+            console.log('chart data', data.chart)
+            return data.chart;
+            
+          }
+          return data.message;
+        }
+        );
+    },
+
+
 };
 
 
