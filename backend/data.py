@@ -1,6 +1,5 @@
 import requests
 import yfinance as yf
-import pandas as pd
 '''
 from langchain.llms import OpenAI
 from langchain.embeddings import OpenAIEmbeddings
