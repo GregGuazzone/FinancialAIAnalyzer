@@ -23,18 +23,25 @@ const Watchlists = () => {
     console.log("useEffect1")
     getWatchlists().then((watchlists) => {
       setWatchlists(watchlists);
-      setSelectedWatchlist(watchlists[3]);
-      getStocksInWatchlist(watchlists[3]).then((stocks) => {
+      setSelectedWatchlist(watchlists[0]);
+      getStocksInWatchlist(watchlists[0]).then((stocks) => {
         setStocksInSelectedWatchlist(stocks)
       })
     });
   }, []);
 
   useEffect(() => {
-    console.log("Selected watchlist:", selectedWatchlist)
-    getStocksInWatchlist(selectedWatchlist).then((stocks) => {
-    updateCurrentPrices(stocks)
-    })
+    if(selectedWatchlist) {
+      console.log("UseEffect2", selectedWatchlist)
+      getStocksInWatchlist(selectedWatchlist).then((stocks) => {
+        setStocksInSelectedWatchlist(stocks)
+        console.log("Stocks In Selected Watchlist:", stocksInSelectedWatchlist)
+        if(stocks.length > 0) {
+          updateCurrentPrices(stocks)
+          startPeriodicUpdates(15000, stocks);
+        }
+      })
+    }
   }, [selectedWatchlist]);
 
 
@@ -56,20 +63,11 @@ const Watchlists = () => {
     setCurrentPrices(updatedData);
   };
 
-  useEffect(() => {
-    console.log("useEffect2")
-    let intervalId;
-
-    const startPeriodicUpdates = () => {
-      intervalId = setInterval(() => {
-        //getStocks();
-      }, 15000); // 15 seconds interval
+    const startPeriodicUpdates = (seconds, stocks) => {
+        setInterval(() => {
+        updateCurrentPrices(stocks);
+      }, seconds);
     };
-  
-    return () => {
-      clearInterval(intervalId);
-    };
-  },[selectedWatchlist]);
 
 
   const handleAddWatchlist = () => {
@@ -104,8 +102,6 @@ const Watchlists = () => {
     },
   ];
 
-  console.log(selectedWatchlist)
-  console.log(currentPrices)
 
   const data = currentPrices;
 
@@ -140,75 +136,75 @@ const Watchlists = () => {
   };
 
   return (
-    <div className="bg-bluegrey-500 h-screen w-screen">
-      <h2 className="text-2xl font-bold text-white p-4">Dashboard</h2>
+    <div className="bg-bluegrey-500 h-screen w-screen block">
+      
       <div>
         {loading ? (
           <p className="text-white">Loading watchlists...</p>
         ) : (
+        <div>
           <div>
-            {watchlists.length === 0 ? (
-              <div>
-                <p className="text-white">No watchlists found.</p>
-                <form className="rounded-md bg-white inline-flex">
-                  <input
-                    className="text-black m-1 rounded-md bg-white"
-                    type="text"
-                    value={newWatchlist}
-                    onChange={(e) => setNewWatchlist(e.target.value)}
-                    placeholder="Enter watchlist name"
-                  />
-                  <button className="text-black m-1 rounded-md bg-white border-black border-solid" onClick={handleAddWatchlist}>Add Watchlist</button>
-                </form>
-              </div>
-            ) : (
-              <div className="bg-white rounded-md shadow-md m-2 ">
-                <p className="p-2">Welcome to your dashboard!</p>
-                <div>
-                  <h2>Watchlist</h2>
+            <label className= "text-white relative left-1">Watchlist:
+              <select
+                className="text-black m-1 rounded-md bg-white"
+                onChange={(e) => setSelectedWatchlist(e.target.value)}
+              >
+                {watchlists.map((watchlist) => (
+                  <option key={watchlist} value={watchlist}>{watchlist}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+                {watchlists.length === 0 ? (
                   <div>
-                    <label>Select watchlist:
-                      <select
+                    <p className="text-white">No watchlists found.</p>
+                    <form className="rounded-md bg-white inline-flex">
+                      <input
                         className="text-black m-1 rounded-md bg-white"
-                        onChange={(e) => setSelectedWatchlist(e.target.value)}
-                      >
-                        {watchlists.map((watchlist) => (
-                          <option key={watchlist} value={watchlist}>{watchlist}</option>
-                        ))}
-                      </select>
-                    </label>
-                    <input
-                      type="text"
-                      value={newStock}
-                      onChange={(e) => setNewStock(e.target.value)}
-                      placeholder="Enter stock symbol"
-                    />
-                    <button onClick={handleAddStock}>Add Stock</button>
+                        type="text"
+                        value={newWatchlist}
+                        onChange={(e) => setNewWatchlist(e.target.value)}
+                        placeholder="Enter watchlist name" />
+                      <button className="text-black m-1 rounded-md bg-white border-black border-solid" onClick={handleAddWatchlist}>Add Watchlist</button>
+                    </form>
                   </div>
-                  {selectedWatchlist && (
-                    <div className="border-black border-2 rounded-sm p-1 m-4 flex flex-row">
-                      {stocksInSelectedWatchlist.length > 0 ? (
-                        <>
-                          <Table />
-                            <StockChart symbols={stocksInSelectedWatchlist} period='1d' />
-                        </>
-                      ) : (
-                        <p>No stocks found in the watchlist.</p>
+                ) : (
+                  <div className="bg-white rounded-md shadow-md m-2 ">
+                    <p className="p-2">Welcome to your dashboard!</p>
+                    <div>
+                      <div className="content-end">
+                        <input
+                          type="text"
+                          value={newStock}
+                          onChange={(e) => setNewStock(e.target.value)}
+                          placeholder="Enter stock symbol" />
+                        <button onClick={handleAddStock}>Add Stock</button>
+                      </div>
+                      {selectedWatchlist && (
+                        <div className="border-black border-2 rounded-sm p-1 m-4 flex flex-row">
+                          {stocksInSelectedWatchlist.length > 0 ? (
+                            <>
+                              <Table />
+                              <StockChart symbols={stocksInSelectedWatchlist} period='1d' />
+                            </>
+                          ) : (
+                            <p>No stocks found in the watchlist.</p>
+                          )}
+                        </div>
                       )}
                     </div>
-                  )}
-                </div>
-                <form className="rounded-md bg-white inline-flex">
-                  <input className="text-black m-1 rounded-md bg-white"
-                    type="text"
-                    value={newWatchlist}
-                    onChange={(e) => setNewWatchlist(e.target.value)}
-                    placeholder="Enter watchlist name" />
-                  <button className="text-black m-1 rounded-md bg-white border-black border-solid" onClick={handleAddWatchlist}>Add Watchlist</button>
-                </form>
+                    <form className="rounded-md bg-white inline-flex">
+                      <input className="text-black m-1 rounded-md bg-white"
+                        type="text"
+                        value={newWatchlist}
+                        onChange={(e) => setNewWatchlist(e.target.value)}
+                        placeholder="Enter watchlist name" />
+                      <button className="text-black m-1 rounded-md bg-white border-black border-solid" onClick={handleAddWatchlist}>Add Watchlist</button>
+                    </form>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
         )}
       </div>
     </div>

@@ -48,7 +48,7 @@ const StockChart = ({ symbols, period }) => {
 
   }, [symbols, period]);
 
-  console.log("Chart data:", chartData);
+  //console.log("Chart data:", chartData);
 
   return (
     <div>

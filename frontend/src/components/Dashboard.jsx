@@ -23,24 +23,24 @@ const Dashboard = () => {
   const translateX = element === 'Watchlists' ? '-translate-x-16' : 'translate-x-16';
 
   return (
-    <div className="App flex flex-col justify-center items-center">
-      <header className="App-header w-60 pt-4 flex flex-row justify-between">
-        <div>
-            <h1
-            className="App-title p-2 text-2xl"
+    <div className="App flex flex-col items-center">
+      <header className="App-header w-full flex justify-between items-center p-4">
+        <div className="flex items-center">
+          <h1
+            className="App-title text-xl cursor-pointer"
             onClick={() => switchElement('Watchlists')}
-            >
+          >
             Watchlist
-            </h1>
-        </div>
-        <div>
-            <h1
-            className="App-title p-2 text-2xl"
+          </h1>
+          <h1
+            className="App-title text-xl cursor-pointer ml-4"
             onClick={() => switchElement('Portfolio')}
-            >
+          >
             Portfolio
-            </h1>
+          </h1>
         </div>
+        <div className="flex-grow"></div>
+        <h1 className="App-title text-xl">Account</h1>
       </header>
       <div className="box-content h-3 w-60 relative flex justify-center items-center">
         <div
