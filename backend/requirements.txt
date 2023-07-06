@@ -3,6 +3,9 @@ flask_jwt_extended
 flask_cors
 flask_sqlalchemy
 sqlalchemy
-yfinance==0.2.22
+yfinance
 requests
 psycopg2-binary
+pandas_datareader
+tensorflow
+scikit-learn

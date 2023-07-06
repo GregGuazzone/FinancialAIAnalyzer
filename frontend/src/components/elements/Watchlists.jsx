@@ -136,7 +136,7 @@ const Watchlists = () => {
   };
 
   return (
-    <div className="bg-bluegrey-500 h-screen w-screen block">
+    <div className="bg-bluegrey-500 w-3/4">
       
       <div>
         {loading ? (

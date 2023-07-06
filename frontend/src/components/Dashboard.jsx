@@ -9,7 +9,7 @@ const Dashboard = () => {
   const renderComponent = () => {
     switch (element) {
       case 'Watchlists':
-        return <Watchlists className="" />;
+        return <Watchlists className="w-3/4" />;
       case 'Portfolio':
         return <Portfolio />;
       default:
@@ -48,9 +48,9 @@ const Dashboard = () => {
           className={`box-content h-3 w-3 bg-blue-500 bottom-0 transform rotate-45 origin-bottom transition-transform duration-500 translate-y-1 ${translateX}`}
         ></div>
       </div>
-      <div className="App-body flex flex-row">
+      <div className="App-body flex flex-row w-screen">
         {renderComponent()}
-        <Chatbox />
+        <Chatbox className="w-1/4"/>
       </div>
 
       
