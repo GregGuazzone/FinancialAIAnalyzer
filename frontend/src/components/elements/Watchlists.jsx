@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useTable } from 'react-table';
 import Api from '../../Api';
 import '../../App.css';
-import StockChart from '../../Chart';
+import StockTable from './StockTable';
 
 const Watchlists = () => {
   const [loading, setLoading] = useState(true);
@@ -104,39 +103,11 @@ const Watchlists = () => {
 
 
   const data = currentPrices;
-
-  const Table = () => {
-    const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({ columns, data });
-
-    return (
-      <table {...getTableProps()}>
-        <thead>
-          {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {rows.map((row) => {
-            prepareRow(row);
-            return (
-              <tr className=" border-2 border-black m-10" {...row.getRowProps()}>
-                {row.cells.map((cell) => (
-                  <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
-                ))}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    );
-  };
+  
+  
 
   return (
-    <div className="bg-bluegrey-500 w-3/4">
+    <div className="bg-bluegrey-500 w-screen">
       
       <div>
         {loading ? (
@@ -185,8 +156,7 @@ const Watchlists = () => {
                         <div className="border-black border-2 rounded-sm p-1 m-4 flex flex-row">
                           {stocksInSelectedWatchlist.length > 0 ? (
                             <>
-                              <Table />
-                              <StockChart symbols={stocksInSelectedWatchlist} period='1d' />
+                              <StockTable symbols={stocksInSelectedWatchlist} />
                             </>
                           ) : (
                             <p>No stocks found in the watchlist.</p>

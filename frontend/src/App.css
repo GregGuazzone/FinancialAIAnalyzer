@@ -12,10 +12,12 @@ body{
 
 #root {
   text-align: center;
-  display: flex;
   align-items : center;
-  height: 100%;
+  height: 100vw;
+  width: 100vw;
+
 }
+
 
 
 @media (prefers-reduced-motion: no-preference) {

@@ -12,7 +12,6 @@ const Chatbot = () => {
     
 
     console.log("Input Text:", inputText)
-    console.log("API Key:", API_KEY)
     // Add user message to the chat
     setMessages([...messages, { role: 'user', content: inputText }]);
     setInputText('');
@@ -26,7 +25,7 @@ const Chatbot = () => {
           'Authorization': `Bearer ${API_KEY}`,
         },
         body: JSON.stringify({
-          model: 'text-davinci-003',
+          model: 'gpt-3.5-turbo',
           messages: [{ role: 'user', content: inputText }],
           temperature: 0.7,
         }),

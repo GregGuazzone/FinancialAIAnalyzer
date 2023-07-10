@@ -9,6 +9,8 @@ const StockChart = ({ symbols, period }) => {
   const [chartData, setChartData] = useState(null);
 
   useEffect(() => {
+
+    console.log('useEffect1')
     // Function to convert the chartData object into an array of datasets
     const createDatasets = (data) => {
       if (!data) return []; // Return an empty array if data is null or undefined
@@ -60,6 +62,19 @@ const StockChart = ({ symbols, period }) => {
               data={{
                 labels: Array.from({ length: dataset.data.length }).map((_, index) => `${index * 30} min`), // Example: ['0 min', '30 min', '60 min', ...]
                 datasets: [dataset],
+              }}
+              options={{
+                scales: {
+                  x: {
+                      display: false,
+                  },
+                  y: {
+                    title: {
+                      display: true,
+                      text: 'Price',
+                    },
+                  },
+                },
               }}
             />
           </div>

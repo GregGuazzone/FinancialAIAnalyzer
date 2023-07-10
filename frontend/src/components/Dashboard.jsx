@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Watchlists from './elements/Watchlists';
 import Portfolio from './elements/Portfolio';
-import Chatbox from './elements/subelements/Chatbox';
+//import Chatbox from './elements/subelements/Chatbox';
 
 const Dashboard = () => {
   const [element, setElement] = useState('Watchlists');
@@ -24,7 +24,7 @@ const Dashboard = () => {
   const translateX = element === 'Watchlists' ? '-translate-x-16' : 'translate-x-16';
 
   return (
-    <div className="App flex flex-col items-center">
+    <div className="App flex flex-col items-center h-screen">
       <header className="">
         <div className="flex items-center">
           <h1
@@ -48,9 +48,8 @@ const Dashboard = () => {
           className={`box-content h-3 w-3 bg-blue-500 bottom-0 transform rotate-45 origin-bottom transition-transform duration-500 translate-y-1 ${translateX}`}
         ></div>
       </div>
-      <div className="App-body flex flex-row w-screen">
+      <div className="App-body flex flex-row w-screen bg-blue-500">
         {renderComponent()}
-        <Chatbox className="w-1/4"/>
       </div>
 
       
