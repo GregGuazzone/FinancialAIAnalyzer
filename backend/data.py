@@ -1,6 +1,9 @@
 import yfinance as yf
+from datetime import datetime, timedelta
 from pandas_datareader import data as pdr
+import pandas_datareader.data as web
 import pandas as pd
+
 
 
 '''
@@ -51,10 +54,8 @@ def get_current_prices(tickers):
         prices[ticker] = stocks.tickers[ticker].info['currentPrice']
     return(prices)
 
-
-    
-def get_charts_data(symbols, period):
-    print("3_Symbols:", symbols)
+def get_chart_data(symbol, period):
+    print("3_Symbol:", symbol)
     if period == '1d':
         interval = '30m'
     elif period == '1wk':
@@ -63,11 +64,16 @@ def get_charts_data(symbols, period):
         interval = '1d'
     elif period == '3mo':
         interval = '5d'
-    data = yf.download(symbols, period=period, interval=interval)
-    open_prices = {}
-    for symbol in symbols:
-        open_prices[symbol] = data['Open'][symbol].tolist()
-    return open_prices
+    data = yf.download(symbol, period=period, interval=interval)
+    open_prices = data['Open']
+    open_prices.index = pd.to_datetime(open_prices.index, unit='s')
+    chart_data = [
+        {'x': timestamp, 'y': price}
+        for timestamp, price in open_prices.items()
+    ]
+    
+    return chart_data
+
 
 
 def get_historical_data(symbol):
