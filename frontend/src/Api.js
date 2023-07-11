@@ -175,9 +175,8 @@ const Api = {
         );
     },
 
-    getChartData: async (tickers, period) => {
-      console.log('tickers', tickers)
-      return fetch(`${API_BASE_URL}/data/chart/?tickers=${tickers}&period=${period}`, {
+    getChartData: async (ticker, period) => {
+      return fetch(`${API_BASE_URL}/data/chart/?ticker=${ticker}&period=${period}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -186,7 +185,6 @@ const Api = {
         .then((response) => response.json())
         .then((data) => {
           if (data.status === true)  {
-            console.log('chart data', data.chart)
             return data.chart;
             
           }

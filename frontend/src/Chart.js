@@ -5,80 +5,55 @@ import Api from './Api';
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const StockChart = ({ symbols, period }) => {
+const StockChart = ({ symbol, period }) => {
   const [chartData, setChartData] = useState(null);
 
+  const createDatasets = (data) => {
+    const prices = data.map(({y}) => y)
+      return [{
+        label: symbol,
+        data: prices,
+        fill: false,
+        borderColor: 'black',
+      }];
+  };
+  
+  
+
   useEffect(() => {
-
-    console.log('useEffect1')
-    // Function to convert the chartData object into an array of datasets
-    const createDatasets = (data) => {
-      if (!data) return []; // Return an empty array if data is null or undefined
-
-      return Object.entries(data).map(([symbol, values]) => {
-        return {
-          label: symbol,
-          data: values,
-          fill: false,
-          borderColor: getRandomColor(), // Function to generate random color for each stock
-        };
-      });
-    };
-
-    // Generate a random color
-    const getRandomColor = () => {
-      return `#${Math.floor(Math.random() * 16777215).toString(16)}`;
-    };
-
-    // Fetch chart data and convert it into datasets
     const fetchData = async () => {
       try {
-        // Fetch chartData using the provided symbols and period
-        // Replace this with your API call or data retrieval logic
-        const data = await Api.getChartData(symbols, period);
-
-        // Convert chartData into datasets
+        const data = await Api.getChartData(symbol, period);
+        console.log("Data:", data);
         const datasets = createDatasets(data);
-
+        console.log("Datasets:", datasets);
         setChartData(datasets);
       } catch (error) {
         console.error('Error fetching chart data:', error);
       }
     };
-
     fetchData();
+  }, []);
 
-  }, [symbols, period]);
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    labels: {
+      color: 'white',
+    },
+    scales: {
+      x: {},
+    },
+  };
 
-  //console.log("Chart data:", chartData);
+    const data = {
+      labels: ['9:30', '10:00', '10:30', '11:00', '11:30', '12:00','12:30','13:00','13:30','14:00','14:30','15:00', '15:30'],
+      datasets: chartData,
+    };
 
   return (
-    <div>
-      {chartData !== null &&
-        chartData.map((dataset) => (
-          <div key={dataset.label}>
-            <h3>{dataset.label}</h3>
-            <Line
-              data={{
-                labels: Array.from({ length: dataset.data.length }).map((_, index) => `${index * 30} min`), // Example: ['0 min', '30 min', '60 min', ...]
-                datasets: [dataset],
-              }}
-              options={{
-                scales: {
-                  x: {
-                      display: false,
-                  },
-                  y: {
-                    title: {
-                      display: true,
-                      text: 'Price',
-                    },
-                  },
-                },
-              }}
-            />
-          </div>
-        ))}
+    <div className="chart-container">
+      {chartData ? <Line data={data} options={options} /> : <div>Loading chart...</div>}
     </div>
   );
 };
