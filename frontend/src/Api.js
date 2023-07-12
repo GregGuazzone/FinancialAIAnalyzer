@@ -67,6 +67,7 @@ const Api = {
       .then((response) => response.json())
       .then((data) => {
         if (data.status === true)  {
+          console.log("Stocks:", data.stocks)
           return data.stocks;
         }
         return data.message;
@@ -139,26 +140,9 @@ const Api = {
       );
     },
 
-    getCurrentPrice: async (ticker) => {
-      return fetch(`${API_BASE_URL}/data/current_price/?ticker=${ticker}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-        },
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.status === true)  {
-            return data.currentPrice;
-          }
-          return data.message;
-        }
-        );
-      },
 
-    getCurrentPrices: async (tickers) => {
-      return fetch(`${API_BASE_URL}/data/current_prices/?tickers=${tickers}`, {
+    getFinancials: async (tickers) => {
+      return fetch(`${API_BASE_URL}/data/financials/?tickers=${tickers}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -168,12 +152,13 @@ const Api = {
         .then((response) => response.json())
         .then((data) => {
           if (data.status === true)  {
-            return data.currentPrices;
+            return data.financials;
           }
           return data.message;
         }
         );
     },
+
 
     getChartData: async (ticker, period) => {
       return fetch(`${API_BASE_URL}/data/chart/?ticker=${ticker}&period=${period}`, {

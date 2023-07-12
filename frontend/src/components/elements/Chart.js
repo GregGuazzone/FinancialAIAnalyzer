@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import Api from './Api';
+import Api from '../../Api';
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -17,7 +17,6 @@ const StockChart = ({ symbol, period }) => {
         borderColor: 'black',
       }];
   };
-  
   
 
   useEffect(() => {

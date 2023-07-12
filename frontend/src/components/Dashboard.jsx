@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import Watchlists from './elements/Watchlists';
-import Portfolio from './elements/Portfolio';
-//import Chatbox from './elements/subelements/Chatbox';
 
 const Dashboard = () => {
   const [element, setElement] = useState('Watchlists');
@@ -10,8 +8,8 @@ const Dashboard = () => {
     switch (element) {
       case 'Watchlists':
         return <Watchlists className="w-3/4" />;
-      case 'Portfolio':
-        return <Portfolio />;
+      //case 'Portfolio':
+        //return <Portfolio />;
       default:
         return <Watchlists />;
     }
@@ -35,7 +33,7 @@ const Dashboard = () => {
           </h1>
           <h1
             className="App-title text-xl cursor-pointer ml-4"
-            onClick={() => switchElement('Portfolio')}
+            //onClick={() => switchElement('Portfolio')}
           >
             Portfolio
           </h1>

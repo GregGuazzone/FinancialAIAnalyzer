@@ -7,7 +7,6 @@ const Watchlists = () => {
   const [loading, setLoading] = useState(true);
   const [watchlists, setWatchlists] = useState(null);
   const [selectedWatchlist, setSelectedWatchlist] = useState(null);
-  const [currentPrices, setCurrentPrices] = useState([]);
   const [stocksInSelectedWatchlist, setStocksInSelectedWatchlist] = useState([]);
   const [newWatchlist, setNewWatchlist] = useState('');
   const [newStock, setNewStock] = useState('');
@@ -30,18 +29,14 @@ const Watchlists = () => {
   }, []);
 
   useEffect(() => {
-    if(selectedWatchlist) {
-      console.log("UseEffect2", selectedWatchlist)
+    console.log("useEffect2")
+    if (selectedWatchlist) {
       getStocksInWatchlist(selectedWatchlist).then((stocks) => {
         setStocksInSelectedWatchlist(stocks)
-        console.log("Stocks In Selected Watchlist:", stocksInSelectedWatchlist)
-        if(stocks.length > 0) {
-          updateCurrentPrices(stocks)
-          startPeriodicUpdates(15000, stocks);
-        }
       })
     }
   }, [selectedWatchlist]);
+
 
 
   const getStocksInWatchlist = async (watchlist) => {
@@ -49,24 +44,6 @@ const Watchlists = () => {
     console.log("Response:", response)
     return await Api.getStocks(watchlist);
   };
-
-  const updateCurrentPrices = async (stocks) => {
-    console.log("Stocks:", stocks)
-    const currentPrices = await Api.getCurrentPrices(stocks);
-    console.log("currentPrices:", currentPrices)
-    const promises = Object.entries(currentPrices).map(async([symbol, prices])=> ({
-      symbol: symbol,
-      price: await currentPrices[symbol],
-    }));
-    const updatedData = await Promise.all(promises);
-    setCurrentPrices(updatedData);
-  };
-
-    const startPeriodicUpdates = (seconds, stocks) => {
-        setInterval(() => {
-        updateCurrentPrices(stocks);
-      }, seconds);
-    };
 
 
   const handleAddWatchlist = () => {
@@ -90,19 +67,6 @@ const Watchlists = () => {
       });
   };
 
-  const columns = [
-    {
-      Header: 'Symbol',
-      accessor: 'symbol',
-    },
-    {
-      Header: 'Price',
-      accessor: 'price',
-    },
-  ];
-
-
-  const data = currentPrices;
   
   
 
@@ -153,10 +117,12 @@ const Watchlists = () => {
                         <button onClick={handleAddStock}>Add Stock</button>
                       </div>
                       {selectedWatchlist && (
-                        <div className="border-black border-2 rounded-sm p-1 m-4 flex flex-row">
+                        <div className="border-black border-2 rounded-sm p-1 m-4">
                           {stocksInSelectedWatchlist.length > 0 ? (
                             <>
-                              <StockTable symbols={stocksInSelectedWatchlist} />
+                              <div className="object-fill w-screen">
+                                <StockTable symbols={stocksInSelectedWatchlist} />
+                              </div>
                             </>
                           ) : (
                             <p>No stocks found in the watchlist.</p>

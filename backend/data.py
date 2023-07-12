@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from pandas_datareader import data as pdr
 import pandas_datareader.data as web
 import pandas as pd
-
+import requests
 
 
 '''
@@ -49,20 +49,20 @@ def get_current_price(ticker):
 def get_current_prices(tickers):
     print("1_Tickers:", tickers)
     stocks = yf.Tickers(' '.join(tickers))
+    print("2_Stocks:", stocks)
     prices = {}
     for ticker in tickers:
         prices[ticker] = stocks.tickers[ticker].info['currentPrice']
     return(prices)
 
 def get_chart_data(symbol, period):
-    print("3_Symbol:", symbol)
     if period == '1d':
         interval = '30m'
-    elif period == '1wk':
+    elif period == '1w':
         interval = '90m'
-    elif period == '1mo':
+    elif period == '1m':
         interval = '1d'
-    elif period == '3mo':
+    elif period == '3m':
         interval = '5d'
     data = yf.download(symbol, period=period, interval=interval)
     open_prices = data['Open']
@@ -71,10 +71,7 @@ def get_chart_data(symbol, period):
         {'x': timestamp, 'y': price}
         for timestamp, price in open_prices.items()
     ]
-    
     return chart_data
-
-
 
 def get_historical_data(symbol):
     yf.pdr_override()
@@ -85,3 +82,12 @@ def get_historical_data(symbol):
     df.set_index('Date', inplace=True)
     df.sort_index(inplace=True)
     return df
+
+def get_financials(tickers):
+    print("Tickers:", tickers)
+    stocks = yf.Tickers(' '.join(tickers))
+    print("Stocks:", stocks)
+    info = {}
+    for ticker in tickers:
+        info[ticker] = stocks.tickers[ticker].info
+    return(info)

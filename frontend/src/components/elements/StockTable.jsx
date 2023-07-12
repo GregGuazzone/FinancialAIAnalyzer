@@ -2,22 +2,25 @@ import React, { useEffect, useState } from 'react';
 import { useTable } from 'react-table';
 import Api from '../../Api';
 import '../../App.css';
-import StockChart from '../../Chart';
+import StockChart from './Chart';
 
 const StockTable = ({symbols}) => {
-  const [loading, setLoading] = useState(true);
-  const [currentPrices, setCurrentPrices] = useState([]);
 
-  const getCurrentPrices = async () => {
-    const response = await Api.getCurrentPrices(symbols);
+  const [loading, setLoading] = useState(true);
+  const [stockData, setStockData] = useState([]);
+
+
+  const getStockData = async () => {
+    const response = await Api.getFinancials(symbols);
+    console.log("Response:", response)
     return response;
   }
 
   useEffect(() => {
-      getCurrentPrices().then((prices) => {
-          setCurrentPrices(prices);
-          console.log("Prices:", prices)
-          setLoading(false);
+      getStockData().then((stockData) => {
+        setStockData(stockData);
+        console.log("AAPL", stockData.AAPL)
+        setLoading(false);
       })
   }, [])
 
@@ -28,19 +31,37 @@ const StockTable = ({symbols}) => {
         accessor: 'symbol',
       },
       {
-        Header: 'Price',
-        accessor: 'price',
+      Header: 'Price',
+      accessor: 'currentPrice',
+      Cell: ({ value }) => `$${value}`,
       },
+      {
+        Header: 'Market Cap',
+        accessor: 'marketCap',
+        Cell: ({ value }) => `$${value}`,
+      },
+      {
+        Header: 'Daily Chart',
+      },
+      {
+        Header: '1 Week Chart',
+      }
     ],
     []
   );
 
+
   const data = React.useMemo(() => {
-    return Object.entries(currentPrices).map(([symbol, price]) => ({
-      symbol: symbol,
-      price: price,
+    if(loading)  {
+      return [];
+    }
+    console.log("Stock Data:", stockData)
+    return Object.entries(stockData).map(([symbol, stock]) => ({
+      symbol,
+      currentPrice: stock.currentPrice,
+      marketCap: stock.marketCap,
     }));
-  }, [currentPrices]);
+  }, [stockData]);
 
   const {
     getTableProps,
@@ -55,7 +76,7 @@ const StockTable = ({symbols}) => {
       {loading ?(
         <div>Loading...</div>
       ) : (
-          <table {...getTableProps()}>
+          <table className="border-black hover:border-spacing-2" {...getTableProps()}>
             <thead>
               {headerGroups.map((headerGroup) => (
                 <tr {...headerGroup.getHeaderGroupProps()}>
@@ -71,11 +92,15 @@ const StockTable = ({symbols}) => {
                 const symbol = row.original.symbol;
 
                 return (
-                  <tr key={symbol}>
+                  <tr className="border border-black rounded-lg" key={symbol}>
                     <td>{symbol}</td>
-                    <td>{row.original.price}</td>
+                    <td>{row.original.currentPrice}</td>
+                    <td>{row.original.marketCap}</td>
                     <td>
                       <StockChart symbol={symbol} period={'1d'} />
+                    </td>
+                    <td>
+                      <StockChart symbol={symbol} period={'1w'} />
                     </td>
                   </tr>
                 );

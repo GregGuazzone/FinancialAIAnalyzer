@@ -5,7 +5,6 @@ import 'tailwindcss/tailwind.css';
 import './styles.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import StockChart from './Chart';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
