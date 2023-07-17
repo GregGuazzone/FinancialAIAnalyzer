@@ -8,6 +8,7 @@ const StockTable = ({symbols}) => {
 
   const [loading, setLoading] = useState(true);
   const [stockData, setStockData] = useState([]);
+  const [chartData, setChartData] = useState([]);
 
 
   const getStockData = async () => {
@@ -16,11 +17,19 @@ const StockTable = ({symbols}) => {
     return response;
   }
 
+  const getChartData = async (symbols, period) => {
+    const response = await Api.getChartData(symbols, period);
+    return response;
+  }
+
   useEffect(() => {
       getStockData().then((stockData) => {
         setStockData(stockData);
-        console.log("AAPL", stockData.AAPL)
         setLoading(false);
+        getChartData(Object.keys(stockData), '1d').then((chartData) => {
+          console.log("Chart Data:", chartData)
+          setChartData(chartData);
+        })
       })
   }, [])
 
@@ -56,10 +65,12 @@ const StockTable = ({symbols}) => {
       return [];
     }
     console.log("Stock Data:", stockData)
+    console.log("Chart data:", chartData)
     return Object.entries(stockData).map(([symbol, stock]) => ({
       symbol,
       currentPrice: stock.currentPrice,
       marketCap: stock.marketCap,
+      chart: <StockChart symbol={chartData[symbol]}/>
     }));
   }, [stockData]);
 
@@ -96,12 +107,7 @@ const StockTable = ({symbols}) => {
                     <td>{symbol}</td>
                     <td>{row.original.currentPrice}</td>
                     <td>{row.original.marketCap}</td>
-                    <td>
-                      <StockChart symbol={symbol} period={'1d'} />
-                    </td>
-                    <td>
-                      <StockChart symbol={symbol} period={'1w'} />
-                    </td>
+                    <td>{row.original.chart}</td>
                   </tr>
                 );
               })}

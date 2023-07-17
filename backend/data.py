@@ -4,6 +4,7 @@ from pandas_datareader import data as pdr
 import pandas_datareader.data as web
 import pandas as pd
 import requests
+import json
 
 
 '''
@@ -55,7 +56,9 @@ def get_current_prices(tickers):
         prices[ticker] = stocks.tickers[ticker].info['currentPrice']
     return(prices)
 
-def get_chart_data(symbol, period):
+def get_chart_data(symbols, period):
+    tickers = ' '.join(symbols)
+    print("Symbols:", symbols)
     if period == '1d':
         interval = '30m'
     elif period == '1w':
@@ -64,14 +67,15 @@ def get_chart_data(symbol, period):
         interval = '1d'
     elif period == '3m':
         interval = '5d'
-    data = yf.download(symbol, period=period, interval=interval)
-    open_prices = data['Open']
-    open_prices.index = pd.to_datetime(open_prices.index, unit='s')
-    chart_data = [
-        {'x': timestamp, 'y': price}
-        for timestamp, price in open_prices.items()
-    ]
-    return chart_data
+    data = yf.download(tickers, period=period, interval=interval)
+    for symbol in symbols:
+        data[f'{symbol}'] = data['Open'][f'{symbol}'].fillna(method='ffill')
+    chart_data = {
+        symbol: list(data['Open'][symbol].values)
+        for symbol in symbols
+    }
+    return json.dumps(chart_data)
+
 
 def get_historical_data(symbol):
     yf.pdr_override()

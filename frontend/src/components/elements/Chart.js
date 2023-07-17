@@ -5,34 +5,26 @@ import Api from '../../Api';
 
 Chart.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-const StockChart = ({ symbol, period }) => {
-  const [chartData, setChartData] = useState(null);
+const StockChart = ({ chartData  }) => {
+  const [datasets, setDatasets] = useState([]);
+
+  useEffect(() => {
+    setDatasets(createDatasets(chartData));
+    console.log("Data:", data)
+  }, [chartData]);
 
   const createDatasets = (data) => {
+    if(!data) return;
+    console.log("Data:", data)
     const prices = data.map(({y}) => y)
       return [{
-        label: symbol,
+        //label: symbol,
         data: prices,
         fill: false,
         borderColor: 'black',
       }];
   };
   
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const data = await Api.getChartData(symbol, period);
-        console.log("Data:", data);
-        const datasets = createDatasets(data);
-        console.log("Datasets:", datasets);
-        setChartData(datasets);
-      } catch (error) {
-        console.error('Error fetching chart data:', error);
-      }
-    };
-    fetchData();
-  }, []);
 
   const options = {
     responsive: true,
@@ -47,7 +39,7 @@ const StockChart = ({ symbol, period }) => {
 
     const data = {
       labels: ['9:30', '10:00', '10:30', '11:00', '11:30', '12:00','12:30','13:00','13:30','14:00','14:30','15:00', '15:30'],
-      datasets: chartData,
+      datasets: datasets,
     };
 
   return (

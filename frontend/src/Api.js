@@ -160,8 +160,8 @@ const Api = {
     },
 
 
-    getChartData: async (ticker, period) => {
-      return fetch(`${API_BASE_URL}/data/chart/?ticker=${ticker}&period=${period}`, {
+    getChartData: async (tickers, period) => {
+      return fetch(`${API_BASE_URL}/data/chart/?tickers=${tickers}&period=${period}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
