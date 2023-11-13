@@ -9,6 +9,8 @@ backend/venv
 #database instance
 backend/instance
 
+backend/__pycache__/
+
 # testing
 /coverage
 
