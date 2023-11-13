@@ -3,7 +3,6 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, String, ForeignKey, Table, ARRAY
 from sqlalchemy.ext.mutable import MutableList
 
-
 db = SQLAlchemy()
 
 def init_app(app):
@@ -30,7 +29,6 @@ class Stock(db.Model):
     id = Column(Integer, primary_key=True)
     symbol = Column(String(10), nullable=False)
     name = Column(String(100), nullable=False)
-
 
 class Watchlist(db.Model):
     __tablename__ = 'watchlists'

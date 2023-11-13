@@ -3,7 +3,8 @@ flask_jwt_extended
 flask_cors
 flask_sqlalchemy
 sqlalchemy
-yfinance
+git+https://github.com/ranaroussi/yfinance.git@feature/cookie-and-crumb#egg=yfinance
+#yfinance
 requests
 psycopg2-binary
 pandas_datareader
