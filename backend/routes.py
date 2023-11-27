@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, render_template, session
 from models import db, init_app, User, Watchlist, Stock, Portfolio
 from flask_jwt_extended import create_access_token, JWTManager, jwt_required, get_jwt_identity
 from flask_cors import CORS
-import data, request
+import data, backend.evaluate as evaluate
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://my_username:my_password@localhost:5432/my_database'
